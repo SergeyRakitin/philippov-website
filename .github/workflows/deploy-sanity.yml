@@ -1,0 +1,39 @@
+name: Deploy Sanity Studio
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'studio/**'
+      - 'package.json'
+      - 'package-lock.json'
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: studio/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd studio
+          npm ci
+
+      - name: Deploy to Sanity
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+          SANITY_STUDIO_DEEPL_PROXY_KEY: ${{ secrets.SANITY_STUDIO_DEEPL_PROXY_KEY }}
+        run: |
+          cd studio
+          npx sanity deploy

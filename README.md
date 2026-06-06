@@ -15,7 +15,7 @@ cd studio && npm install && cd ..
 cp .env.example .env   # заполнить значения (Sanity, DeepL)
 
 # 3. Запуск
-npm run dev            # сайт → http://localhost:4321
+npm run dev            # сайт → http://localhost:4322
 cd studio && npm run dev   # админка → http://localhost:3333
 ```
 

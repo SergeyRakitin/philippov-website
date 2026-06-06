@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "description": "Портфолио Сергея Филиппова — театральный композитор и саунд-дизайнер. Astro + Sanity.",
   "scripts": {
-    "dev": "astro dev --host --config config/astro.config.mjs",
+    "dev": "astro dev --host --port 4322 --config config/astro.config.mjs",
     "build": "astro build --config config/astro.config.mjs",
-    "preview": "astro preview --config config/astro.config.mjs",
+    "preview": "astro preview --port 4322 --config config/astro.config.mjs",
     "astro": "astro",
     "translate": "tsx scripts/translate-sanity.ts",
     "seed": "tsx scripts/seed.ts"

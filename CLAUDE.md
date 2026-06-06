@@ -13,7 +13,7 @@ Astro генерирует статику из данных Sanity. Два яз�
 
 ```bash
 npm install              # корень (Astro)
-npm run dev              # Astro dev (http://localhost:4321)
+npm run dev              # Astro dev (http://localhost:4322 — отдельный порт, чтобы не пересекаться с nomusicians:4321)
 npm run build            # сборка
 npm run preview          # предпросмотр
 
@@ -47,8 +47,16 @@ Lint/test нет. Astro-конфиг вынесен в `config/astro.config.mjs`
 
 ## Деплой
 
-Пока не настроен (нет домена/сервера). Сайт собирается (`npm run build`), деплой — позже.
-НЕ деплоить на VPS nomusicians.
+- **Sanity Studio** — задеплоена: https://sergeyphilippov.sanity.studio/.
+  Авто-деплой при push в `main` с изменениями `studio/**` (GitHub Actions
+  `.github/workflows/deploy-sanity.yml`, секреты `SANITY_AUTH_TOKEN` (роль deploy-studio) +
+  `SANITY_STUDIO_DEEPL_PROXY_KEY`). Ручной запуск: `gh workflow run deploy-sanity.yml`.
+  Локальный деплой: `cd studio && npx sanity deploy`.
+- **Сайт (Astro)** — пока не настроен (нет домена/сервера). Собирается `npm run build`.
+  НЕ деплоить на VPS nomusicians.
+
+Прим.: кнопка «Перевести» работает и локально, и на хостинговой Studio
+(её origin добавлен в аллоулист общего DeepL-прокси nomusicians).
 
 ## Язык
 
