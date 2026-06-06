@@ -1,0 +1,31 @@
+# build output
+dist/
+.astro/
+studio/dist/
+studio/.sanity/
+
+# dependencies
+node_modules/
+
+# secrets / env
+.env
+.env.*
+!.env.example
+
+# logs
+logs/
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# temp (отчёты GenUI, скриншоты playwright, черновики)
+temp/
+.playwright-mcp/
+
+# misc
+*.tsbuildinfo

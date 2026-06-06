@@ -1,0 +1,29 @@
+{
+  "name": "philippov-website",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Портфолио Сергея Филиппова — театральный композитор и саунд-дизайнер. Astro + Sanity.",
+  "scripts": {
+    "dev": "astro dev --host --config config/astro.config.mjs",
+    "build": "astro build --config config/astro.config.mjs",
+    "preview": "astro preview --config config/astro.config.mjs",
+    "astro": "astro",
+    "translate": "tsx scripts/translate-sanity.ts",
+    "seed": "tsx scripts/seed.ts"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.5.4",
+    "@astrojs/sitemap": "^3.3.0",
+    "@sanity/client": "^7.13.1",
+    "@sanity/image-url": "^2.0.0",
+    "@tailwindcss/vite": "^4.1.17",
+    "astro": "^5.16.2",
+    "astro-portabletext": "^0.12.0",
+    "tailwindcss": "^4.1.17"
+  },
+  "devDependencies": {
+    "@portabletext/types": "^2.0.13",
+    "dotenv": "^17.2.3",
+    "tsx": "^4.19.0"
+  }
+}
