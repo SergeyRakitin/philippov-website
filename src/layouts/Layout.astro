@@ -1,0 +1,138 @@
+---
+import '../styles/global.css';
+import { t, type Lang } from '../i18n/translations';
+
+interface Props {
+  title: string;
+  description?: string;
+  lang: Lang;
+  ogImage?: string;
+}
+
+const { title, description, lang, ogImage = '' } = Astro.props;
+
+const metaDescription = description || t(lang, 'meta.defaultDescription');
+
+const site = Astro.site || new URL('https://sergeyphilippov.com');
+const siteOrigin = site.origin;
+
+// Абсолютный og:image
+const ogImageAbsolute = ogImage
+  ? (ogImage.startsWith('http') ? ogImage : `${siteOrigin}${ogImage}`)
+  : '';
+
+// Canonical
+const canonicalURL = new URL(Astro.url.pathname, site);
+
+// hreflang: убираем возможный префикс /ru → базовый путь
+const basePath = Astro.url.pathname.replace(/^\/ru(\/|$)/, '/');
+const hreflangUrls = {
+  en: new URL(basePath, siteOrigin).href,
+  ru: new URL(`/ru${basePath}`.replace(/\/+$/, '') || '/ru', siteOrigin).href,
+};
+
+const htmlLang = lang === 'ru' ? 'ru' : 'en';
+const ogLocale = lang === 'ru' ? 'ru_RU' : 'en_US';
+
+// JSON-LD: персона + сайт
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: title,
+  url: siteOrigin,
+  description: metaDescription,
+  ...(ogImageAbsolute ? { image: ogImageAbsolute } : {}),
+};
+---
+
+<!doctype html>
+<html lang={htmlLang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content={metaDescription} />
+    <meta name="robots" content="index, follow" />
+
+    <link rel="canonical" href={canonicalURL} />
+
+    <link rel="alternate" hreflang="en" href={hreflangUrls.en} />
+    <link rel="alternate" hreflang="ru" href={hreflangUrls.ru} />
+    <link rel="alternate" hreflang="x-default" href={hreflangUrls.en} />
+
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:url" content={canonicalURL} />
+    {ogImageAbsolute && <meta property="og:image" content={ogImageAbsolute} />}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content={ogImageAbsolute ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={metaDescription} />
+    {ogImageAbsolute && <meta name="twitter:image" content={ogImageAbsolute} />}
+
+    <title>{title}</title>
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/<\//g, '<\\/')} />
+
+    <!-- Помечаем активный JS до отрисовки: reveal-анимации применяются только с .js,
+         без JS контент виден сразу (краулеры / no-JS). -->
+    <script is:inline>document.documentElement.classList.add('js')</script>
+  </head>
+  <body>
+    <a href="#main" class="skip-to-content">{t(lang, 'a11y.skipToContent')}</a>
+    <slot />
+
+    <!-- Reveal-анимации + grayscale на touch (IntersectionObserver) -->
+    <script>
+      function initReveal() {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const els = document.querySelectorAll<HTMLElement>('.reveal');
+        if (reduce || !('IntersectionObserver' in window)) {
+          els.forEach((el) => el.classList.add('is-visible'));
+          return;
+        }
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                io.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0, rootMargin: '0px 0px -10% 0px' },
+        );
+        els.forEach((el) => io.observe(el));
+      }
+
+      function initGrayscaleTouch() {
+        if (window.matchMedia('(hover: hover)').matches) return;
+        if (!('IntersectionObserver' in window)) return;
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => e.target.classList.toggle('in-view', e.isIntersecting));
+          },
+          { threshold: 0.4 },
+        );
+        document.querySelectorAll('.img-grayscale').forEach((img) => io.observe(img));
+      }
+
+      initReveal();
+      initGrayscaleTouch();
+    </script>
+  </body>
+</html>

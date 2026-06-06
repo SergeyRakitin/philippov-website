@@ -1,0 +1,30 @@
+---
+// Рендер Portable Text через astro-portabletext.
+// Кастомизация маркой/блоком — на минимум: дефолтный рендер + стили из .prose-rich.
+// Ссылки (annotation 'link' с href) переопределяем, чтобы открывать внешние в новой вкладке.
+import { PortableText } from 'astro-portabletext';
+import type { PortableTextBlock } from '@portabletext/types';
+import PortableLink from './PortableLink.astro';
+
+interface Props {
+  value: PortableTextBlock[] | null | undefined;
+  class?: string;
+}
+
+const { value, class: className = '' } = Astro.props;
+const blocks = value ?? [];
+
+const components = {
+  mark: {
+    link: PortableLink,
+  },
+};
+---
+
+{
+  blocks.length > 0 && (
+    <div class={`prose-rich ${className}`}>
+      <PortableText value={blocks} components={components} />
+    </div>
+  )
+}

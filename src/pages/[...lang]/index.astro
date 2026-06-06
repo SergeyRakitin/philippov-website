@@ -1,0 +1,91 @@
+---
+// Одностраничник. getStaticPaths → EN (/) и RU (/ru).
+// Грузит 4 источника из Sanity и собирает страницу:
+// Header → Hero → About → Section[] → Contact → Footer.
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Hero from '../../components/Hero.astro';
+import About from '../../components/About.astro';
+import Section from '../../components/Section.astro';
+import Contact from '../../components/Contact.astro';
+import Footer from '../../components/Footer.astro';
+
+import { type Lang } from '../../i18n/translations';
+import { getLangStaticPaths, getLocalized } from '../../lib/i18n-helpers';
+import {
+  getSiteSettings,
+  getAboutSection,
+  getSections,
+  getContactSettings,
+  urlFor,
+} from '../../lib/sanity';
+
+export function getStaticPaths() {
+  return getLangStaticPaths();
+}
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+
+// Загрузка контента (параллельно). Любая ошибка → безопасный fallback внутри функций.
+const [settings, about, sections, contact] = await Promise.all([
+  getSiteSettings(),
+  getAboutSection(),
+  getSections(),
+  getContactSettings(),
+]);
+
+// Бренд / имя для хедера, тайтла, футера
+const name = getLocalized(settings?.name, lang);
+const role = getLocalized(settings?.role, lang);
+const brand = name || 'Sergey Philippov';
+
+// SEO
+const seoTitle = getLocalized(settings?.seoTitle, lang);
+const title = seoTitle || [name, role].filter(Boolean).join(' — ') || brand;
+const description = getLocalized(settings?.seoDescription, lang) || getLocalized(settings?.heroTagline, lang);
+
+// OG image (siteSettings.ogImage → fallback heroImage)
+const ogSource = settings?.ogImage || settings?.heroImage;
+const ogImage = ogSource ? urlFor(ogSource).width(1200).height(630).fit('crop').quality(80).url() : '';
+
+// Флаги наличия секций (для навигации)
+const hasAbout = Boolean(
+  getLocalized(about?.heading, lang) ||
+  (about?.body?.[lang]?.length || about?.body?.en?.length) ||
+  about?.portrait,
+);
+const hasContact = Boolean(
+  contact?.email || contact?.phone ||
+  getLocalized(contact?.location, lang) ||
+  (contact?.socials?.length ?? 0) > 0 ||
+  getLocalized(contact?.heading, lang),
+);
+---
+
+<Layout title={title} description={description} lang={lang} ogImage={ogImage}>
+  <Header
+    lang={lang}
+    brand={brand}
+    sections={sections}
+    hasAbout={hasAbout}
+    hasContact={hasContact}
+  />
+
+  <main id="main" tabindex="-1">
+    <Hero lang={lang} settings={settings} />
+
+    {hasAbout && <About lang={lang} about={about} />}
+
+    {sections.map((section, index) => (
+      <Section lang={lang} section={section} index={index} />
+    ))}
+
+    {hasContact && <Contact lang={lang} contact={contact} />}
+  </main>
+
+  <Footer lang={lang} brand={brand} />
+</Layout>

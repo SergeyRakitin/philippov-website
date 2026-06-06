@@ -1,0 +1,113 @@
+---
+// Contact: заголовок, email (mailto), телефон (tel), локация,
+// заметка о доступности, соцсети/стриминг (иконки по platform).
+import { t, type Lang } from '../i18n/translations';
+import { getLocalized } from '../lib/i18n-helpers';
+import type { ContactSettings, SocialPlatform } from '../lib/sanity';
+
+interface Props {
+  lang: Lang;
+  contact: ContactSettings | null;
+}
+
+const { lang, contact } = Astro.props;
+
+const heading = getLocalized(contact?.heading, lang) || t(lang, 'nav.contact');
+const email = contact?.email?.trim() || '';
+const phone = contact?.phone?.trim() || '';
+const location = getLocalized(contact?.location, lang);
+const availability = getLocalized(contact?.availabilityNote, lang);
+const socials = (contact?.socials ?? []).filter((s) => s?.url);
+
+// Подписи платформ
+const platformLabel: Record<SocialPlatform, string> = {
+  spotify: 'Spotify',
+  soundcloud: 'SoundCloud',
+  instagram: 'Instagram',
+  telegram: 'Telegram',
+  whatsapp: 'WhatsApp',
+  youtube: 'YouTube',
+  website: 'Website',
+};
+
+// Иконки платформ (24x24, currentColor). Простые узнаваемые глифы.
+const icons: Record<SocialPlatform, string> = {
+  spotify: '<path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm4.59 14.43a.62.62 0 01-.86.21c-2.35-1.44-5.3-1.76-8.79-.96a.62.62 0 11-.28-1.22c3.81-.87 7.08-.5 9.72 1.11.3.18.39.57.21.86zm1.22-2.72a.78.78 0 01-1.07.26c-2.69-1.65-6.79-2.13-9.97-1.17a.78.78 0 11-.45-1.49c3.63-1.1 8.15-.56 11.24 1.33.37.23.49.71.25 1.07zm.11-2.84C14.8 8.16 9.4 7.98 6.3 8.92a.93.93 0 11-.54-1.79c3.56-1.08 9.52-.87 13.28 1.36a.93.93 0 11-.95 1.6z"/>',
+  soundcloud: '<path fill="currentColor" d="M11.5 9.4c-.3 0-.5.02-.7.06v8.3h8.4c1.6 0 2.8-1.3 2.8-2.85 0-1.57-1.26-2.85-2.83-2.85-.35 0-.69.07-1 .19A4.9 4.9 0 0011.5 9.4zM9.4 10.2c-.3 0-.6.05-.85.13v7.43h1.7V10.3a3 3 0 00-.85-.1zM7 11.1l-.85.06v6.6H7v-6.6zm-2 .9l-.85 1.5.85 4.26h.85V12zm-2 1.2l-.7 1.3.7 3h.7v-4.3z"/>',
+  instagram: '<path fill="none" stroke="currentColor" stroke-width="1.7" d="M7.5 3.5h9A4 4 0 0120.5 7.5v9a4 4 0 01-4 4h-9a4 4 0 01-4-4v-9a4 4 0 014-4z"/><circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17" cy="7" r="1.1" fill="currentColor"/>',
+  telegram: '<path fill="currentColor" d="M21.9 4.3l-3.3 15.6c-.25 1.1-.9 1.37-1.83.85l-5.05-3.72-2.44 2.35c-.27.27-.5.5-1 .5l.36-5.13L18.3 6.2c.4-.36-.09-.56-.62-.2L6.13 13.3l-5-1.57c-1.09-.34-1.11-1.09.23-1.61l19.55-7.53c.9-.34 1.7.2 1.4 1.71z"/>',
+  whatsapp: '<path fill="currentColor" d="M12 2a9.94 9.94 0 00-8.5 15.16L2 22l4.96-1.46A10 10 0 1012 2zm0 18.1a8.1 8.1 0 01-4.13-1.13l-.3-.18-2.94.87.88-2.87-.19-.3A8.1 8.1 0 1112 20.1zm4.5-6.06c-.25-.12-1.46-.72-1.69-.8-.23-.08-.4-.12-.56.12-.17.25-.64.8-.79.97-.14.16-.29.18-.54.06a6.6 6.6 0 01-1.95-1.2 7.3 7.3 0 01-1.35-1.68c-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.42-.56-.42l-.48-.01c-.16 0-.43.06-.65.31-.23.25-.86.84-.86 2.05 0 1.21.88 2.38 1 2.55.13.16 1.74 2.66 4.22 3.73.59.25 1.05.4 1.4.52.59.19 1.13.16 1.55.1.47-.07 1.46-.6 1.66-1.17.21-.58.21-1.07.15-1.18-.06-.1-.23-.16-.48-.29z"/>',
+  youtube: '<path fill="currentColor" d="M22.5 7.2a3 3 0 00-2.1-2.1C18.6 4.5 12 4.5 12 4.5s-6.6 0-8.4.6A3 3 0 001.5 7.2 31 31 0 001 12a31 31 0 00.5 4.8 3 3 0 002.1 2.1c1.8.6 8.4.6 8.4.6s6.6 0 8.4-.6a3 3 0 002.1-2.1A31 31 0 0023 12a31 31 0 00-.5-4.8zM10 15.5v-7l6 3.5-6 3.5z"/>',
+  website: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',
+};
+---
+
+<section id="contact" class="section-pad" style="background: var(--color-ink);">
+  <div class="container-site">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+      <!-- Заголовок + доступность -->
+      <div class="lg:col-span-5">
+        <p class="eyebrow reveal mb-4">{t(lang, 'contact.write')}</p>
+        <h2 class="display-lg reveal" style="transition-delay:.05s">{heading}</h2>
+        {availability && (
+          <p class="lead mt-6 max-w-md reveal" style="transition-delay:.1s">{availability}</p>
+        )}
+      </div>
+
+      <!-- Контакты -->
+      <div class="lg:col-span-7 reveal" style="transition-delay:.12s">
+        <dl class="space-y-8">
+          {email && (
+            <div>
+              <dt class="eyebrow-muted mb-2">{t(lang, 'contact.email')}</dt>
+              <dd>
+                <a href={`mailto:${email}`} class="display-md link-underline" style="font-size:clamp(1.4rem,2.4vw,2rem);">
+                  {email}
+                </a>
+              </dd>
+            </div>
+          )}
+
+          {phone && (
+            <div>
+              <dt class="eyebrow-muted mb-2">{t(lang, 'contact.phone')}</dt>
+              <dd>
+                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="text-xl link-underline">
+                  {phone}
+                </a>
+              </dd>
+            </div>
+          )}
+
+          {location && (
+            <div>
+              <dt class="eyebrow-muted mb-2">{t(lang, 'contact.location')}</dt>
+              <dd class="text-xl text-text">{location}</dd>
+            </div>
+          )}
+        </dl>
+
+        <!-- Соцсети -->
+        {socials.length > 0 && (
+          <div class="flex flex-wrap gap-3 mt-12 pt-8 border-t border-line-soft">
+            {socials.map((s) => (
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2.5 px-4 py-2.5 border transition-colors group"
+                style="border-color: var(--color-line-strong); border-radius: var(--radius-full); color: var(--color-text-secondary);"
+                aria-label={s.label || platformLabel[s.platform] || s.platform}
+              >
+                <svg class="w-5 h-5 transition-colors group-hover:text-accent" viewBox="0 0 24 24" aria-hidden="true" set:html={icons[s.platform] || icons.website} />
+                <span class="text-sm nav-link group-hover:text-paper" style="letter-spacing:.08em;">
+                  {s.label || platformLabel[s.platform] || s.platform}
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</section>

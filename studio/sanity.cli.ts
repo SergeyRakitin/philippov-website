@@ -6,7 +6,7 @@ export default defineCliConfig({
     dataset: process.env.SANITY_STUDIO_DATASET || 'production',
   },
   studioHost: 'sergeyphilippov',
-  vite: (config) => {
+  vite: (config: Record<string, any>) => {
     return {
       ...config,
       envDir: '..',

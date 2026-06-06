@@ -1,0 +1,456 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Дизайн-система — портфолио театрального композитора.
+   Палитра: тёмная кинематографичная (графит/почти-чёрный +
+   тёплый латунно-янтарный акцент). Конфиг Tailwind v4 — только
+   через @theme, без tailwind.config.js.
+   ============================================================ */
+
+@theme {
+  /* Фон / поверхности */
+  --color-ink: #0c0b0a;          /* почти-чёрный, тёплый */
+  --color-ink-soft: #131210;     /* секции-чередование */
+  --color-surface: #1a1815;      /* карточки/панели */
+  --color-surface-hover: rgba(255, 250, 240, 0.04);
+
+  /* Текст (тёплый белый) */
+  --color-paper: #f4efe6;        /* эмфаза */
+  --color-text: rgba(244, 239, 230, 0.86);
+  --color-text-secondary: rgba(244, 239, 230, 0.62);
+  --color-muted: rgba(244, 239, 230, 0.46);
+  --color-muted-low: rgba(244, 239, 230, 0.32);
+  --color-faint: rgba(244, 239, 230, 0.16);
+
+  /* Акцент — латунь/янтарь */
+  --color-accent: #c8975a;
+  --color-accent-bright: #e0b06a;
+  --color-accent-dim: rgba(200, 151, 90, 0.5);
+  --color-accent-glow: rgba(200, 151, 90, 0.22);
+
+  /* Границы */
+  --color-line: rgba(244, 239, 230, 0.10);
+  --color-line-soft: rgba(244, 239, 230, 0.06);
+  --color-line-strong: rgba(244, 239, 230, 0.20);
+
+  /* Оверлеи */
+  --color-overlay: rgba(8, 7, 6, 0.55);
+  --color-overlay-heavy: rgba(8, 7, 6, 0.9);
+
+  /* Шрифты */
+  --font-display: 'Cormorant Garamond', 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+
+  /* Радиусы */
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-full: 9999px;
+
+  /* Длины контента */
+  --container-prose: 42rem;
+}
+
+/* ============================================================
+   База
+   ============================================================ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem; /* высота sticky-хедера */
+    background: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply text-text antialiased min-h-screen flex flex-col;
+    background: var(--color-ink);
+    font-family: var(--font-body);
+    font-weight: 400;
+    line-height: 1.65;
+    letter-spacing: 0.005em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-light;
+    color: var(--color-paper);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    @apply transition-colors duration-300;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  ::selection {
+    background: var(--color-accent-glow);
+    color: var(--color-paper);
+  }
+
+  /* Фокус для клавиатуры */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Skip-link */
+  .skip-to-content {
+    position: absolute;
+    top: -200%;
+    left: 1rem;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  }
+  .skip-to-content:focus {
+    top: 0;
+  }
+}
+
+/* ============================================================
+   Утилиты / компоненты
+   ============================================================ */
+
+@layer components {
+
+  /* ── Сетка / контейнеры ────────────────────────────────── */
+
+  .container-site {
+    @apply mx-auto px-6 md:px-10 lg:px-16;
+    max-width: 80rem;
+  }
+
+  .section-pad {
+    @apply py-24 md:py-32;
+  }
+
+  /* ── Типографика ───────────────────────────────────────── */
+
+  .display-xl {
+    font-family: var(--font-display);
+    @apply font-light;
+    font-size: clamp(2.75rem, 9vw, 7rem);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+  }
+
+  .display-lg {
+    font-family: var(--font-display);
+    @apply font-light;
+    font-size: clamp(2rem, 5vw, 3.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+  }
+
+  .display-md {
+    font-family: var(--font-display);
+    @apply font-light;
+    font-size: clamp(1.6rem, 3.5vw, 2.5rem);
+    line-height: 1.08;
+  }
+
+  /* Метка-эйчбраун (uppercase, разрядка) */
+  .eyebrow {
+    font-family: var(--font-mono);
+    @apply uppercase;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    color: var(--color-accent);
+  }
+
+  .eyebrow-muted {
+    font-family: var(--font-mono);
+    @apply uppercase;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.24em;
+    color: var(--color-muted-low);
+  }
+
+  .lead {
+    @apply font-light;
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  /* Богатый текст (PortableText) */
+  .prose-rich {
+    color: var(--color-text);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .prose-rich > * + * { margin-top: 1.15em; }
+  .prose-rich p { color: var(--color-text); }
+  .prose-rich a {
+    color: var(--color-accent-bright);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--color-accent-dim);
+  }
+  .prose-rich a:hover { text-decoration-color: var(--color-accent-bright); }
+  .prose-rich strong { color: var(--color-paper); font-weight: 600; }
+  .prose-rich em { font-style: italic; }
+  .prose-rich h3 {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    margin-top: 2em;
+    color: var(--color-paper);
+  }
+  .prose-rich h4 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    margin-top: 1.6em;
+    color: var(--color-paper);
+  }
+  .prose-rich blockquote {
+    border-left: 2px solid var(--color-accent);
+    padding-left: 1.25rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.4rem;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
+  }
+  .prose-rich ul,
+  .prose-rich ol { padding-left: 1.25rem; }
+  .prose-rich ul { list-style: none; }
+  .prose-rich ul li { position: relative; padding-left: 1rem; }
+  .prose-rich ul li::before {
+    content: '—';
+    position: absolute;
+    left: -0.25rem;
+    color: var(--color-accent);
+  }
+  .prose-rich ol { list-style: decimal; }
+  .prose-rich ol li::marker { color: var(--color-accent); }
+
+  /* ── Кнопки / ссылки-экшены ────────────────────────────── */
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-5 py-3;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    border: 1px solid var(--color-line-strong);
+    background: transparent;
+    transition: color .3s, border-color .3s, background .3s;
+  }
+  .btn-ghost:hover {
+    color: var(--color-paper);
+    border-color: var(--color-accent);
+    background: var(--color-accent-glow);
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center gap-2 px-6 py-3;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-ink);
+    background: var(--color-accent);
+    transition: background .3s, transform .3s;
+  }
+  .btn-accent:hover { background: var(--color-accent-bright); }
+
+  .link-underline {
+    position: relative;
+    color: var(--color-text-secondary);
+    transition: color .3s;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -2px;
+    width: 0; height: 1px;
+    background: var(--color-accent);
+    transition: width .35s ease;
+  }
+  .link-underline:hover { color: var(--color-paper); }
+  .link-underline:hover::after { width: 100%; }
+
+  .link-arrow {
+    @apply inline-flex items-center gap-1.5;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    transition: gap .3s, color .3s;
+  }
+  .link-arrow:hover { gap: 0.6rem; color: var(--color-accent-bright); }
+
+  /* Навигация в хедере */
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+    transition: color .3s;
+  }
+  .nav-link:hover { color: var(--color-paper); }
+
+  /* ── Изображения ч/б → цвет ────────────────────────────── */
+
+  .img-grayscale {
+    filter: grayscale(100%) contrast(1.02);
+    transition: filter .6s ease, transform .6s ease;
+  }
+  .group:hover .img-grayscale,
+  .img-grayscale:hover {
+    filter: grayscale(0%) contrast(1);
+  }
+  /* Touch-устройства: цвет при попадании в зону видимости */
+  @media (hover: none) {
+    .img-grayscale.in-view { filter: grayscale(0%) contrast(1); }
+  }
+
+  /* ── Reveal-анимации при скролле (мелкие fade/slide) ────── */
+
+  /* Прячем и анимируем только при активном JS (класс .js на <html>).
+     Без JS / у краулеров контент виден сразу — видимость не зависит от скрипта. */
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .8s cubic-bezier(.22,.61,.36,1),
+                transform .8s cubic-bezier(.22,.61,.36,1);
+    will-change: opacity, transform;
+  }
+  .js .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Медиа-эмбеды (16:9) ───────────────────────────────── */
+
+  .embed-16x9 {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-soft);
+    overflow: hidden;
+  }
+  .embed-16x9 iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* ── Карусель фото ─────────────────────────────────────── */
+
+  .carousel-arrow {
+    opacity: 0;
+    transition: opacity .3s, color .3s, background .3s;
+    user-select: none;
+  }
+  [data-carousel-section]:hover .carousel-arrow { opacity: 1; }
+
+  .carousel-item img {
+    filter: grayscale(100%) contrast(1.02);
+    transition: filter .55s ease, transform .55s ease;
+    user-select: none;
+  }
+  .carousel-item-active img { filter: grayscale(0%) contrast(1); }
+  .gallery-scroll:hover .carousel-item-active img { filter: grayscale(100%) contrast(1.02); }
+  .carousel-item:hover img { filter: grayscale(0%) contrast(1) !important; }
+
+  .scroll-snap-carousel { scroll-snap-type: x proximity; }
+  .carousel-item { scroll-snap-align: center; }
+
+  /* Индикатор карусели (стебель + точка) */
+  .indicator-dot {
+    position: relative;
+    width: 8px;
+    box-sizing: content-box;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 16px;
+    margin: -16px;
+    background: transparent;
+    border: none;
+  }
+  .indicator-dot::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: var(--stem-height, 14px);
+    background: var(--color-faint);
+    margin-bottom: 4px;
+    transition: background .3s;
+  }
+  .indicator-dot::after {
+    content: '';
+    display: block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--color-faint);
+    transition: background .3s;
+  }
+  .indicator-dot.active::before,
+  .indicator-dot:hover::before { background: var(--color-accent); }
+  .indicator-dot.active::after,
+  .indicator-dot:hover::after { background: var(--color-accent); }
+
+  /* ── Прочее ─────────────────────────────────────────────── */
+
+  .hairline { height: 1px; background: var(--color-line); }
+
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* ============================================================
+   Скроллбар
+   ============================================================ */
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-ink); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent-dim); }
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) var(--color-ink);
+}
+
+/* ============================================================
+   Уважение к prefers-reduced-motion
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1 !important; transform: none !important; }
+}

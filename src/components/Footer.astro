@@ -1,0 +1,29 @@
+---
+// Подвал: копирайт, имя, год, ссылка «наверх».
+import { t, type Lang } from '../i18n/translations';
+
+interface Props {
+  lang: Lang;
+  brand: string;
+}
+
+const { lang, brand } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-line-soft" style="background: var(--color-ink);">
+  <div class="container-site py-12">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <p class="text-sm text-muted">
+        © {year} {brand}. {t(lang, 'footer.rights')}.
+      </p>
+
+      <a href="#main" class="link-arrow">
+        {t(lang, 'a11y.toTop')}
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 15l7-7 7 7" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</footer>

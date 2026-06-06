@@ -1,0 +1,61 @@
+---
+// About: заголовок, биография (Portable Text), портрет.
+import { type Lang } from '../i18n/translations';
+import { getLocalized, getLocalizedBlocks } from '../lib/i18n-helpers';
+import { urlFor, type AboutSection } from '../lib/sanity';
+import PortableText from './PortableText.astro';
+
+interface Props {
+  lang: Lang;
+  about: AboutSection | null;
+}
+
+const { lang, about } = Astro.props;
+
+const heading = getLocalized(about?.heading, lang);
+const body = getLocalizedBlocks(about?.body, lang);
+const portraitUrl = about?.portrait
+  ? urlFor(about.portrait).width(900).quality(85).auto('format').url()
+  : '';
+
+const hasContent = Boolean(heading || body.length || portraitUrl);
+---
+
+{hasContent && (
+  <section id="about" class="section-pad" style="background: var(--color-ink-soft);">
+    <div class="container-site">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <!-- Текст -->
+        <div class={portraitUrl ? 'lg:col-span-7' : 'lg:col-span-9'}>
+          {heading && (
+            <h2 class="display-lg reveal mb-10">{heading}</h2>
+          )}
+          {body.length > 0 && (
+            <div class="reveal" style="transition-delay:.08s">
+              <PortableText value={body} />
+            </div>
+          )}
+        </div>
+
+        <!-- Портрет -->
+        {portraitUrl && (
+          <div class="lg:col-span-5 reveal" style="transition-delay:.12s">
+            <div class="relative overflow-hidden group">
+              <img
+                src={portraitUrl}
+                alt={heading || 'Portrait'}
+                class="w-full aspect-[4/5] object-cover img-grayscale"
+                loading="lazy"
+              />
+              <div
+                class="absolute inset-0 pointer-events-none border"
+                style="border-color: var(--color-line-soft);"
+                aria-hidden="true"
+              ></div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+)}

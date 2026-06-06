@@ -1,0 +1,46 @@
+---
+// Переключатель языка EN/RU. Сохраняет текущий путь (EN без префикса ↔ /ru).
+import { type Lang } from '../i18n/translations';
+
+interface Props {
+  lang: Lang;
+  class?: string;
+}
+
+const { lang, class: className = '' } = Astro.props;
+
+// Базовый путь без языкового префикса
+const path = Astro.url.pathname;
+const basePath = path.replace(/^\/ru(\/|$)/, '/');
+
+// Целевые URL для каждого языка (RU — с префиксом, EN — без)
+const enHref = basePath || '/';
+const ruHref = (`/ru${basePath}`).replace(/\/$/, '') || '/ru';
+
+const items: { code: Lang; label: string; href: string }[] = [
+  { code: 'en', label: 'EN', href: enHref },
+  { code: 'ru', label: 'RU', href: ruHref },
+];
+---
+
+<div class={`flex items-center gap-1 ${className}`} role="group" aria-label="Language">
+  {
+    items.map((item, i) => (
+      <Fragment>
+        {i > 0 && <span class="text-faint select-none" aria-hidden="true">/</span>}
+        <a
+          href={item.href}
+          hreflang={item.code}
+          aria-current={item.code === lang ? 'true' : undefined}
+          class:list={[
+            'nav-link px-1 py-1',
+            item.code === lang ? 'text-paper' : '',
+          ]}
+          style={item.code === lang ? 'color: var(--color-accent);' : ''}
+        >
+          {item.label}
+        </a>
+      </Fragment>
+    ))
+  }
+</div>

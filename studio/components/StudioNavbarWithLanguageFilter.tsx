@@ -124,7 +124,7 @@ function TranslateTopbarButton(props: {doc: CurrentDocument}): JSX.Element | nul
   const {doc} = props
   const client = useClient({apiVersion: '2024-01-01'})
   const publishedId = getPublishedId(doc.id)
-  const {patch} = useDocumentOperation(publishedId, doc.type)
+  const {patch} = useDocumentOperation(publishedId, doc.type!)
   const [isTranslating, setIsTranslating] = useState(false)
 
   const handleTranslate = useCallback(async () => {
@@ -577,7 +577,7 @@ export function StudioNavbarWithLanguageFilter(props: NavbarProps): JSX.Element 
         name: 'language-visibility-topbar',
         location: 'topbar' as const,
         render: () => {
-          if (!navbarRect) return null
+          if (!navbarRect) return <></>
           const left = searchRect ? searchRect.right + 12 : navbarRect.left + navbarRect.width / 2
           return (
             <Box

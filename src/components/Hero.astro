@@ -1,0 +1,71 @@
+---
+// Hero: имя, роль, вступление, статус, фоновое фото/портрет.
+import { type Lang } from '../i18n/translations';
+import { getLocalized } from '../lib/i18n-helpers';
+import { urlFor, type SiteSettings } from '../lib/sanity';
+
+interface Props {
+  lang: Lang;
+  settings: SiteSettings | null;
+}
+
+const { lang, settings } = Astro.props;
+
+const name = getLocalized(settings?.name, lang);
+const role = getLocalized(settings?.role, lang);
+const tagline = getLocalized(settings?.heroTagline, lang);
+const statusNote = getLocalized(settings?.statusNote, lang);
+
+const heroImageUrl = settings?.heroImage
+  ? urlFor(settings.heroImage).width(1800).quality(82).auto('format').url()
+  : '';
+---
+
+<section class="relative overflow-hidden" aria-label="Intro">
+  {heroImageUrl && (
+    <div class="absolute inset-0 -z-10" aria-hidden="true">
+      <img
+        src={heroImageUrl}
+        alt=""
+        class="w-full h-full object-cover img-grayscale opacity-40"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div
+        class="absolute inset-0"
+        style="background: linear-gradient(to bottom, rgba(12,11,10,.55) 0%, rgba(12,11,10,.35) 40%, rgba(12,11,10,.85) 100%);"
+      ></div>
+    </div>
+  )}
+
+  <div class="container-site min-h-[88vh] flex flex-col justify-center py-28 md:py-32">
+    <div class="max-w-4xl">
+      {role && (
+        <p class="eyebrow reveal mb-6">{role}</p>
+      )}
+
+      {name && (
+        <h1 class="display-xl text-paper reveal" style="transition-delay:.05s">
+          {name}
+        </h1>
+      )}
+
+      {tagline && (
+        <p class="lead mt-8 max-w-2xl reveal" style="transition-delay:.12s">
+          {tagline}
+        </p>
+      )}
+
+      {statusNote && (
+        <p class="mt-10 inline-flex items-center gap-2.5 eyebrow-muted reveal" style="transition-delay:.18s">
+          <span
+            class="inline-block w-1.5 h-1.5 rounded-full"
+            style="background: var(--color-accent);"
+            aria-hidden="true"
+          ></span>
+          {statusNote}
+        </p>
+      )}
+    </div>
+  </div>
+</section>

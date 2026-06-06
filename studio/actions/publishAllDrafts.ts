@@ -36,7 +36,10 @@ export async function fetchAllDraftStubs(client: SanityClient): Promise<DraftStu
   return Array.isArray(result) ? result : []
 }
 
-function toPublishedDoc(draft: Record<string, unknown>, publishedId: string): Record<string, unknown> {
+function toPublishedDoc(
+  draft: Record<string, unknown>,
+  publishedId: string,
+): {_id: string; _type: string; [key: string]: unknown} {
   const type = draft._type
   if (typeof type !== 'string' || type.trim() === '') {
     throw new Error('Draft is missing _type')

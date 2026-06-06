@@ -1,0 +1,89 @@
+---
+// Один раздел портфолио: title, subtitle, body (Portable Text),
+// затем карусель фото, видео, аудио. id = slug (якорь).
+import { type Lang } from '../i18n/translations';
+import { getLocalized, getLocalizedBlocks } from '../lib/i18n-helpers';
+import { urlFor, type Section, type SanityImage } from '../lib/sanity';
+import PortableText from './PortableText.astro';
+import PhotoCarousel, { type Photo } from './PhotoCarousel.astro';
+import VideoEmbed from './VideoEmbed.astro';
+import AudioEmbed from './AudioEmbed.astro';
+
+interface Props {
+  lang: Lang;
+  section: Section;
+  index: number;
+}
+
+const { lang, section, index } = Astro.props;
+
+const slug = section.slug?.current || `section-${index}`;
+const title = getLocalized(section.title, lang);
+const subtitle = getLocalized(section.subtitle, lang);
+const body = getLocalizedBlocks(section.body, lang);
+
+// Фото → карусель (только с asset). Передаём весь image-объект (hotspot/crop учитываются).
+const photos: Photo[] = (section.photos ?? [])
+  .filter((p) => p?.asset)
+  .map((p) => ({
+    src: urlFor(p as unknown as SanityImage).width(900).quality(82).auto('format').url(),
+    caption: getLocalized(p.caption, lang) || undefined,
+  }));
+
+const videos = (section.videos ?? []).filter((v) => v?.url);
+const audios = (section.audios ?? []).filter((a) => a?.url);
+
+// Чередование фона секций
+const altBg = index % 2 === 1;
+---
+
+<section
+  id={slug}
+  class="section-pad"
+  style={altBg ? 'background: var(--color-ink-soft);' : 'background: var(--color-ink);'}
+>
+  <div class="container-site">
+    <!-- Шапка раздела -->
+    <header class="max-w-3xl mb-12 md:mb-16">
+      <p class="eyebrow reveal mb-4">
+        {String(index + 1).padStart(2, '0')}
+      </p>
+      {title && <h2 class="display-lg reveal" style="transition-delay:.05s">{title}</h2>}
+      {subtitle && (
+        <p class="lead mt-5 reveal" style="transition-delay:.1s">{subtitle}</p>
+      )}
+    </header>
+
+    <!-- Текст раздела -->
+    {body.length > 0 && (
+      <div class="max-w-2xl mb-14 reveal">
+        <PortableText value={body} />
+      </div>
+    )}
+  </div>
+
+  <!-- Карусель фото (на всю ширину контейнера, с внутренними отступами) -->
+  {photos.length > 0 && (
+    <div class="container-site mb-14">
+      <PhotoCarousel carouselId={`carousel-${slug}`} photos={photos} lang={lang} />
+    </div>
+  )}
+
+  <!-- Видео -->
+  {videos.length > 0 && (
+    <div class="container-site">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {videos.map((video) => <VideoEmbed lang={lang} item={video} />)}
+      </div>
+    </div>
+  )}
+
+  <!-- Аудио -->
+  {audios.length > 0 && (
+    <div class="container-site">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {audios.map((audio) => <AudioEmbed lang={lang} item={audio} />)}
+      </div>
+    </div>
+  )}
+</section>

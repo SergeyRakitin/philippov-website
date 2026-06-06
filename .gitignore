@@ -29,3 +29,6 @@ temp/
 
 # misc
 *.tsbuildinfo
+
+# claude code локальные данные сессий
+.claude/data/

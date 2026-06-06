@@ -1,7 +1,7 @@
 import type {SanityClient} from '@sanity/client'
 import type {PortableTextBlock} from '@portabletext/types'
 import {getPublishedId, useClient, useDocumentOperation} from 'sanity'
-import type {DocumentActionProps} from 'sanity'
+import type {DocumentActionProps, DocumentActionDescription} from 'sanity'
 import {TranslateIcon} from '@sanity/icons'
 import {useState} from 'react'
 
@@ -466,7 +466,7 @@ export async function runTranslation(options: {
   }
 }
 
-export function TranslateAction(props: DocumentActionProps) {
+export function TranslateAction(props: DocumentActionProps): DocumentActionDescription {
   const {patch} = useDocumentOperation(props.id, props.type)
   const [isTranslating, setIsTranslating] = useState(false)
   const client = useClient({apiVersion: '2024-01-01'})
@@ -474,7 +474,7 @@ export function TranslateAction(props: DocumentActionProps) {
   return {
     label: isTranslating ? 'Перевод...' : 'Перевести',
     icon: TranslateIcon,
-    group: ['default', 'paneActions'],
+    group: ['default', 'paneActions'] as const,
     disabled: isTranslating,
     onHandle: async () => {
       if (isTranslating) return

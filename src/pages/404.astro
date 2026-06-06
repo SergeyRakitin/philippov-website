@@ -1,0 +1,20 @@
+---
+// Страница 404 (EN по умолчанию — без префикса).
+import Layout from '../layouts/Layout.astro';
+import { t, defaultLang } from '../i18n/translations';
+
+const lang = defaultLang;
+---
+
+<Layout title={t(lang, '404.title')} lang={lang}>
+  <main id="main" tabindex="-1" class="flex-1 flex items-center" style="background: var(--color-ink);">
+    <div class="container-site py-32 text-center">
+      <p class="eyebrow mb-6">404</p>
+      <h1 class="display-lg mb-6">{t(lang, '404.title')}</h1>
+      <p class="lead max-w-md mx-auto mb-10">{t(lang, '404.text')}</p>
+      <a href="/" class="btn-ghost">
+        {t(lang, '404.back')}
+      </a>
+    </div>
+  </main>
+</Layout>

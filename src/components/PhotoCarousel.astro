@@ -1,0 +1,181 @@
+---
+// Фотокарусель (адаптация из nomusicians).
+// - первый элемент прижат влево, последний — вправо (естественный скролл)
+// - активное фото = ближайшее к центру (ч/б → цвет)
+// - scroll-snap, стрелки (десктоп), индикаторы-точки
+// - мало фото (всё помещается) → стрелки/индикаторы скрыты
+import { t, type Lang } from '../i18n/translations';
+
+export interface Photo {
+  src: string;
+  caption?: string;
+}
+
+interface Props {
+  carouselId: string;
+  photos: Photo[];
+  lang: Lang;
+  showIndicators?: boolean;
+  class?: string;
+}
+
+const {
+  carouselId,
+  photos,
+  lang,
+  showIndicators = true,
+  class: className = '',
+} = Astro.props;
+
+// Разные высоты стеблей индикаторов — лёгкая «нотная» неровность
+const stemHeights = [8, 14, 10, 16, 9, 12, 15, 7, 11, 13, 9, 12];
+const heights = Array.from({ length: photos.length }, (_, i) => stemHeights[i % stemHeights.length]);
+---
+
+<section class={`relative overflow-hidden ${className}`} data-carousel-section={carouselId}>
+  <!-- Стрелки -->
+  <button
+    class="carousel-arrow carousel-prev absolute left-3 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full hidden md:flex items-center justify-center"
+    style="background: var(--color-overlay); color: var(--color-text-secondary);"
+    data-carousel={carouselId}
+    aria-label={t(lang, 'carousel.prev')}
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+  <button
+    class="carousel-arrow carousel-next absolute right-3 top-1/2 -translate-y-1/2 z-10 w-11 h-11 rounded-full hidden md:flex items-center justify-center"
+    style="background: var(--color-overlay); color: var(--color-text-secondary);"
+    data-carousel={carouselId}
+    aria-label={t(lang, 'carousel.next')}
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" />
+    </svg>
+  </button>
+
+  <!-- Лента -->
+  <div class="gallery-scroll overflow-x-auto scrollbar-hide scroll-snap-carousel" id={carouselId}>
+    <div class="flex gap-4 w-max">
+      {photos.map((photo, index) => (
+        <figure class="carousel-item flex-shrink-0 w-72 md:w-96">
+          <div class="aspect-[4/5] overflow-hidden group">
+            <img
+              src={photo.src}
+              alt={photo.caption || `${t(lang, 'carousel.photo')} ${index + 1}`}
+              class="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          {photo.caption && (
+            <figcaption class="mt-3 text-sm text-muted">{photo.caption}</figcaption>
+          )}
+        </figure>
+      ))}
+    </div>
+  </div>
+
+  <!-- Индикаторы -->
+  {showIndicators && photos.length > 1 && (
+    <div class="carousel-indicators flex justify-center items-end mt-6 h-6 w-full px-4">
+      <div class="flex items-end gap-1 max-w-[90vw] overflow-x-auto scrollbar-hide">
+        {photos.map((_, index) => (
+          <button
+            class="indicator-dot flex-shrink-0"
+            data-carousel-id={carouselId}
+            data-dot-index={index}
+            style={`--stem-height: ${heights[index]}px`}
+            aria-label={`${t(lang, 'carousel.photo')} ${index + 1}`}
+          ></button>
+        ))}
+      </div>
+    </div>
+  )}
+</section>
+
+<script>
+  function initCarousel(carouselId: string) {
+    const carousel = document.getElementById(carouselId);
+    if (!carousel || carousel.dataset.inited === 'true') return;
+    if (carousel.clientWidth === 0) return;
+
+    const items = Array.from(carousel.querySelectorAll<HTMLElement>('.carousel-item'));
+    if (items.length === 0) return;
+
+    const section = carousel.closest<HTMLElement>('[data-carousel-section]');
+    const prevBtn = section?.querySelector<HTMLElement>(`.carousel-prev[data-carousel="${carouselId}"]`) ?? null;
+    const nextBtn = section?.querySelector<HTMLElement>(`.carousel-next[data-carousel="${carouselId}"]`) ?? null;
+    const indicatorsWrap = section?.querySelector<HTMLElement>('.carousel-indicators') ?? null;
+    const dots = section?.querySelectorAll<HTMLElement>(`[data-carousel-id="${carouselId}"]`) ?? [];
+
+    carousel.dataset.inited = 'true';
+
+    function checkOverflow() {
+      const hasOverflow = carousel!.scrollWidth > carousel!.clientWidth + 1;
+      prevBtn?.classList.toggle('!hidden', !hasOverflow);
+      nextBtn?.classList.toggle('!hidden', !hasOverflow);
+      indicatorsWrap?.classList.toggle('hidden', !hasOverflow);
+    }
+
+    function getActiveIndex(): number {
+      const centerX = carousel!.scrollLeft + carousel!.clientWidth / 2;
+      let closest = 0;
+      let minDist = Infinity;
+      items.forEach((item, i) => {
+        const c = item.offsetLeft + item.offsetWidth / 2;
+        const d = Math.abs(c - centerX);
+        if (d < minDist) { minDist = d; closest = i; }
+      });
+      return closest;
+    }
+
+    function scrollToIndex(index: number, behavior: ScrollBehavior = 'smooth') {
+      const item = items[index];
+      if (!item) return;
+      const target = item.offsetLeft - (carousel!.clientWidth - item.offsetWidth) / 2;
+      const max = carousel!.scrollWidth - carousel!.clientWidth;
+      carousel!.scrollTo({ left: Math.max(0, Math.min(target, max)), behavior });
+    }
+
+    function updateActive(index?: number) {
+      const idx = index ?? getActiveIndex();
+      items.forEach((item, i) => item.classList.toggle('carousel-item-active', i === idx));
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+    }
+
+    checkOverflow();
+    updateActive(0);
+
+    let raf = 0;
+    carousel.addEventListener('scroll', () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => updateActive());
+    });
+
+    dots.forEach((dot, i) => dot.addEventListener('click', () => { scrollToIndex(i); updateActive(i); }));
+
+    prevBtn?.addEventListener('click', () => {
+      const target = Math.max(0, getActiveIndex() - 1);
+      scrollToIndex(target); updateActive(target);
+    });
+    nextBtn?.addEventListener('click', () => {
+      const target = Math.min(items.length - 1, getActiveIndex() + 1);
+      scrollToIndex(target); updateActive(target);
+    });
+
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => { checkOverflow(); updateActive(); }, 150);
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll<HTMLElement>('.gallery-scroll').forEach((c) => {
+      if (c.id && c.clientWidth > 0) initCarousel(c.id);
+    });
+  }
+
+  initAll();
+</script>
