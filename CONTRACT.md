@@ -105,4 +105,4 @@ singletonDocumentIds = ['siteSettings','aboutSection','contactSettings']
 
 - video: YouTube (`youtube.com/watch?v=`, `youtu.be/`) и Vimeo → `<iframe>`; иначе — ссылка.
 - audio: SoundCloud → `https://w.soundcloud.com/player/?url=<enc>`; Spotify (`open.spotify.com/...`) → `/embed/`; иначе — ссылка.
-- фото: компонент `PhotoCarousel.astro` (адаптация из nomusicians).
+- фото: компонент `PhotoCarousel.astro`.

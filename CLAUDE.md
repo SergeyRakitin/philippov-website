@@ -13,7 +13,7 @@ Astro генерирует статику из данных Sanity. Два яз�
 
 ```bash
 npm install              # корень (Astro)
-npm run dev              # Astro dev (http://localhost:4322 — отдельный порт, чтобы не пересекаться с nomusicians:4321)
+npm run dev              # Astro dev (http://localhost:4322 — отдельный порт)
 npm run build            # сборка
 npm run preview          # предпросмотр
 
@@ -35,7 +35,7 @@ Lint/test нет. Astro-конфиг вынесен в `config/astro.config.mjs`
 - **GROQ-запросы и типы**: `src/lib/sanity.ts`.
 - **Studio-фишки** (`studio/`): кнопка «Перевести» (EN→RU) и «Publish all» в тулбаре,
   тогглы EN/RU скрывают языковые поля, уменьшенные отступы формы.
-  Перевод: `studio/actions/translateAction.tsx`. Прокси DeepL — общий с nomusicians
+  Перевод: `studio/actions/translateAction.tsx`. Прокси DeepL — общий между проектами
   (`https://deepl.nomusicians.com/translate`, ключ `SANITY_STUDIO_DEEPL_PROXY_KEY`).
 
 ## Sanity
@@ -53,10 +53,10 @@ Lint/test нет. Astro-конфиг вынесен в `config/astro.config.mjs`
   `SANITY_STUDIO_DEEPL_PROXY_KEY`). Ручной запуск: `gh workflow run deploy-sanity.yml`.
   Локальный деплой: `cd studio && npx sanity deploy`.
 - **Сайт (Astro)** — пока не настроен (нет домена/сервера). Собирается `npm run build`.
-  НЕ деплоить на VPS nomusicians.
+  Деплой — отдельным решением, когда будут домен/сервер.
 
 Прим.: кнопка «Перевести» работает и локально, и на хостинговой Studio
-(её origin добавлен в аллоулист общего DeepL-прокси nomusicians).
+(её origin добавлен в аллоулист общего DeepL-прокси).
 
 ## Язык
 

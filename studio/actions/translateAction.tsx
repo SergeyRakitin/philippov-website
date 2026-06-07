@@ -5,7 +5,7 @@ import type {DocumentActionProps, DocumentActionDescription} from 'sanity'
 import {TranslateIcon} from '@sanity/icons'
 import {useState} from 'react'
 
-// Прокси для обхода CORS (DeepL). По умолчанию — VPS nomusicians, override через env.
+// Прокси для обхода CORS (DeepL). Общий прокси между проектами, override через env.
 const DEFAULT_PROXY_URL = 'https://deepl.nomusicians.com/translate'
 const PROXY_URL = import.meta.env.SANITY_STUDIO_DEEPL_PROXY_URL || DEFAULT_PROXY_URL
 const PROXY_KEY = import.meta.env.SANITY_STUDIO_DEEPL_PROXY_KEY || ''
