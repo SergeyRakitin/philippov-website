@@ -2,7 +2,7 @@ import {defineType, defineField} from 'sanity'
 
 export default defineType({
   name: 'contactSettings',
-  title: 'Contacts / Контакты',
+  title: 'Контакты',
   type: 'document',
   icon: () => '📞',
   fields: [
@@ -31,7 +31,7 @@ export default defineType({
   preview: {
     select: {title: 'heading.en', email: 'email'},
     prepare({title, email}) {
-      return {title: title || 'Contacts / Контакты', subtitle: email, media: () => '📞'}
+      return {title: title || 'Контакты', subtitle: email, media: () => '📞'}
     },
   },
 })

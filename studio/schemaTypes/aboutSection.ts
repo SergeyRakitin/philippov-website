@@ -2,7 +2,7 @@ import {defineType, defineField} from 'sanity'
 
 export default defineType({
   name: 'aboutSection',
-  title: 'About / О себе',
+  title: 'О себе',
   type: 'document',
   icon: () => '📄',
   fields: [
@@ -23,7 +23,7 @@ export default defineType({
   preview: {
     select: {title: 'heading.en'},
     prepare({title}) {
-      return {title: title || 'About / О себе', media: () => '📄'}
+      return {title: title || 'О себе', media: () => '📄'}
     },
   },
 })

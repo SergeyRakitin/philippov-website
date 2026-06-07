@@ -35,16 +35,22 @@ export default defineConfig({
         return S.list()
           .title('Контент')
           .items([
-            // === Hero / Главная (singleton) ===
+            // === Главная (singleton) ===
             S.listItem()
               .id('siteSettings')
-              .title('🏠 Hero / Главная')
+              .title('🏠 Главная')
               .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
 
-            // === About / О себе (singleton) ===
+            // === SEO (singleton) ===
+            S.listItem()
+              .id('seoSettings')
+              .title('🔍 SEO')
+              .child(S.document().schemaType('seoSettings').documentId('seoSettings')),
+
+            // === О себе (singleton) ===
             S.listItem()
               .id('aboutSection')
-              .title('📄 About / О себе')
+              .title('📄 О себе')
               .child(S.document().schemaType('aboutSection').documentId('aboutSection')),
 
             S.divider(),
@@ -61,10 +67,10 @@ export default defineConfig({
 
             S.divider(),
 
-            // === Contacts / Контакты (singleton) ===
+            // === Контакты (singleton) ===
             S.listItem()
               .id('contactSettings')
-              .title('📞 Contacts / Контакты')
+              .title('📞 Контакты')
               .child(S.document().schemaType('contactSettings').documentId('contactSettings')),
           ])
       },
