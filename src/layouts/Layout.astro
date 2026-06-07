@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { t, type Lang } from '../i18n/translations';
+import { withBase, langHome } from '../lib/i18n-helpers';
 
 interface Props {
   title: string;
@@ -21,14 +22,13 @@ const ogImageAbsolute = ogImage
   ? (ogImage.startsWith('http') ? ogImage : `${siteOrigin}${ogImage}`)
   : '';
 
-// Canonical
-const canonicalURL = new URL(Astro.url.pathname, site);
+// Canonical (с учётом base-префикса GitHub Pages)
+const canonicalURL = new URL(langHome(lang), site);
 
-// hreflang: убираем возможный префикс /ru → базовый путь
-const basePath = Astro.url.pathname.replace(/^\/ru(\/|$)/, '/');
+// hreflang: две языковые «домашние» (сайт одностраничный)
 const hreflangUrls = {
-  en: new URL(basePath, siteOrigin).href,
-  ru: new URL(`/ru${basePath}`.replace(/\/+$/, '') || '/ru', siteOrigin).href,
+  en: new URL(langHome('en'), site).href,
+  ru: new URL(langHome('ru'), site).href,
 };
 
 const htmlLang = lang === 'ru' ? 'ru' : 'en';
@@ -63,13 +63,13 @@ const jsonLd = {
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
     <link
       rel="preload"
-      href="/fonts/TildaSans-VF.woff2"
+      href={withBase('/fonts/TildaSans-VF.woff2')}
       as="font"
       type="font/woff2"
       crossorigin
     />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />

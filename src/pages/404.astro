@@ -2,6 +2,7 @@
 // Страница 404 (EN по умолчанию — без префикса).
 import Layout from '../layouts/Layout.astro';
 import { t, defaultLang } from '../i18n/translations';
+import { langHome } from '../lib/i18n-helpers';
 
 const lang = defaultLang;
 ---
@@ -12,7 +13,7 @@ const lang = defaultLang;
       <p class="eyebrow mb-6">404</p>
       <h1 class="display-lg mb-6">{t(lang, '404.title')}</h1>
       <p class="lead max-w-md mx-auto mb-10">{t(lang, '404.text')}</p>
-      <a href="/" class="btn-ghost">
+      <a href={langHome(lang)} class="btn-ghost">
         {t(lang, '404.back')}
       </a>
     </div>

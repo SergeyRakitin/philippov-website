@@ -1,6 +1,7 @@
 ---
 // Переключатель языка EN/RU. Сохраняет текущий путь (EN без префикса ↔ /ru).
 import { type Lang } from '../i18n/translations';
+import { langHome } from '../lib/i18n-helpers';
 
 interface Props {
   lang: Lang;
@@ -9,17 +10,10 @@ interface Props {
 
 const { lang, class: className = '' } = Astro.props;
 
-// Базовый путь без языкового префикса
-const path = Astro.url.pathname;
-const basePath = path.replace(/^\/ru(\/|$)/, '/');
-
-// Целевые URL для каждого языка (RU — с префиксом, EN — без)
-const enHref = basePath || '/';
-const ruHref = (`/ru${basePath}`).replace(/\/$/, '') || '/ru';
-
+// Сайт одностраничный — переключатель ведёт на языковую «домашнюю» (base-aware).
 const items: { code: Lang; label: string; href: string }[] = [
-  { code: 'en', label: 'EN', href: enHref },
-  { code: 'ru', label: 'RU', href: ruHref },
+  { code: 'en', label: 'EN', href: langHome('en') },
+  { code: 'ru', label: 'RU', href: langHome('ru') },
 ];
 ---
 

@@ -46,3 +46,20 @@ export function getLocalizedBlocks(
 export function langPrefix(lang: Lang): string {
   return lang === defaultLang ? '' : `/${lang}`;
 }
+
+/** Base сайта без завершающего слэша ('' или '/philippov-website' для GitHub Pages). */
+const BASE = import.meta.env.BASE_URL.replace(/\/+$/, '');
+
+/**
+ * Внутренний путь с учётом base-префикса (деплой в подпапку GitHub Pages).
+ * withBase('/') → '/philippov-website/', withBase('/ru') → '/philippov-website/ru'.
+ */
+export function withBase(path: string): string {
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return `${BASE}${p}`;
+}
+
+/** Домашний путь языка с учётом base: EN → base/, RU → base/ru. */
+export function langHome(lang: Lang): string {
+  return withBase(lang === defaultLang ? '/' : `/${lang}`);
+}

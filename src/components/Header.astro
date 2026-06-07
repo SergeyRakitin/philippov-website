@@ -2,7 +2,7 @@
 // Sticky-навигация: имя/лого, якоря (About, разделы, Contact), переключатель языка,
 // мобильное меню (бургер).
 import { t, type Lang } from '../i18n/translations';
-import { getLocalized, langPrefix } from '../lib/i18n-helpers';
+import { getLocalized, langHome } from '../lib/i18n-helpers';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import type { Section } from '../lib/sanity';
 
@@ -15,22 +15,22 @@ interface Props {
 }
 
 const { lang, brand, sections, hasAbout, hasContact } = Astro.props;
-const prefix = langPrefix(lang); // '' для EN, '/ru' для RU
-const homeHref = prefix || '/';
+const homeHref = langHome(lang); // base-aware домашняя текущего языка
 
-// Пункты-якоря: About → разделы → Contact
+// Пункты-якоря: About → разделы → Contact.
+// Чистые хэши — сайт одностраничный, якорь всегда на текущей странице (base-независимо).
 type NavItem = { href: string; label: string };
 const navItems: NavItem[] = [];
 
-if (hasAbout) navItems.push({ href: `${prefix}#about`, label: t(lang, 'nav.about') });
+if (hasAbout) navItems.push({ href: '#about', label: t(lang, 'nav.about') });
 
 for (const s of sections) {
   const slug = s.slug?.current;
   const title = getLocalized(s.title, lang);
-  if (slug && title) navItems.push({ href: `${prefix}#${slug}`, label: title });
+  if (slug && title) navItems.push({ href: `#${slug}`, label: title });
 }
 
-if (hasContact) navItems.push({ href: `${prefix}#contact`, label: t(lang, 'nav.contact') });
+if (hasContact) navItems.push({ href: '#contact', label: t(lang, 'nav.contact') });
 ---
 
 <header

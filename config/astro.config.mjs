@@ -7,7 +7,10 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  site: 'https://sergeyphilippov.com',
+  // Деплой на GitHub Pages в подпапку проекта (project page):
+  // https://sergeyrakitin.github.io/philippov-website/
+  site: 'https://sergeyrakitin.github.io',
+  base: '/philippov-website',
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'ru'],

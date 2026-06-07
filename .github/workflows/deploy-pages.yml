@@ -1,0 +1,50 @@
+# Сборка Astro-сайта и деплой на GitHub Pages.
+# Контент тянется из публичного датасета Sanity на этапе сборки — токены не нужны.
+name: Деплой сайта на GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'studio/**'        # изменения только в Studio деплоит deploy-sanity.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Один активный деплой за раз; промежуточные пуши отменяются.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Конфиг в config/astro.config.mjs — собираем через npm-скрипт, а не голый astro build.
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

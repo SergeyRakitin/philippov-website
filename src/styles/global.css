@@ -14,7 +14,9 @@
   font-style: normal;
   font-weight: 250 1000;
   font-display: swap;
-  src: url('/fonts/TildaSans-VF.woff2') format('woff2-variations');
+  /* base-префикс захардкожен: плоский CSS не видит import.meta.env.BASE_URL.
+     Должен совпадать с base в config/astro.config.mjs и preload в Layout.astro. */
+  src: url('/philippov-website/fonts/TildaSans-VF.woff2') format('woff2-variations');
 }
 
 @theme {
