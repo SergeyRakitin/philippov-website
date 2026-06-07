@@ -1,13 +1,13 @@
 /**
- * Авто-перевод контента в Sanity через DeepL: EN → RU.
+ * Авто-перевод контента в Sanity через DeepL: RU → EN.
  *
- * Источник — EN (язык по умолчанию), цель — RU. Рекурсивно обходит документы,
- * находит локализованные объекты { en, ru } (строки и Portable Text) и переводит
- * en → ru, если ru пуст (или всегда — при флаге --force).
+ * Источник — RU (язык ввода), цель — EN (переведённая цель + база фронтового fallback).
+ * Рекурсивно обходит документы, находит локализованные объекты { en, ru } (строки и
+ * Portable Text) и переводит ru → en, если en пуст (или всегда — при флаге --force).
  *
  * Запуск:
- *   npm run translate                 — все типы, дозаполнить только пустые RU
- *   npm run translate -- --force      — перезаписать ВСЕ переводы RU
+ *   npm run translate                 — все типы, дозаполнить только пустые EN
+ *   npm run translate -- --force      — перезаписать ВСЕ переводы EN
  *   npm run translate -- --type section
  *   npm run translate -- --only siteSettings --force
  *
@@ -36,7 +36,7 @@ const client = createClient({
   token: process.env.SANITY_TOKEN,
 });
 
-// Источник — EN, цель — RU.
+// Источник — RU (язык ввода), цель перевода — EN.
 type Lang = 'EN' | 'RU';
 
 // --- Типы Portable Text ---
@@ -216,13 +216,13 @@ async function translateLocaleString(
   field: { en?: string; ru?: string },
   forceOverwrite: boolean,
 ): Promise<{ en: string; ru: string }> {
-  const sourceText = (field.en || '').trim();
-  // EN пустой — очищаем RU (ничего переводить не из чего).
-  if (!sourceText) return { en: '', ru: '' };
+  const sourceText = (field.ru || '').trim();
+  // EN — база фронтового fallback, не затираем при пустом RU
+  if (!sourceText) return { en: field.en || '', ru: field.ru || '' };
 
   const result = { en: field.en || '', ru: field.ru || '' };
-  if (!result.ru || forceOverwrite) {
-    result.ru = await translateText(sourceText, 'RU', 'EN');
+  if (!result.en || forceOverwrite) {
+    result.en = await translateText(sourceText, 'EN', 'RU');
     await delay(DELAY_BETWEEN_REQUESTS_MS);
   }
   return result;
@@ -446,25 +446,25 @@ async function translateLocaleRichText(
   field: { en?: PTBlock[]; ru?: PTBlock[] },
   forceOverwrite: boolean,
 ): Promise<{ value: { en: PTBlock[]; ru: PTBlock[] }; warnings: string[] }> {
-  const enBlocks = field.en || [];
-  const hasEnText = enBlocks.some(
+  const ruBlocks = field.ru || [];
+  const hasRuText = ruBlocks.some(
     (b) =>
       b._type === 'block' &&
       (b.children as PTSpan[]).some((c) => c._type === 'span' && (c.text || '').trim()),
   );
 
-  // EN пустой — очищаем RU.
-  if (!hasEnText) return { value: { en: enBlocks, ru: [] }, warnings: [] };
+  // EN — база фронтового fallback, не затираем при пустом RU
+  if (!hasRuText) return { value: { en: field.en || [], ru: field.ru || [] }, warnings: [] };
 
-  const result = { en: enBlocks, ru: field.ru || [] };
+  const result = { en: field.en || [], ru: ruBlocks };
   const warnings: string[] = [];
 
-  if (!result.ru.length || forceOverwrite) {
-    const html = portableTextToHtml(enBlocks);
+  if (!result.en.length || forceOverwrite) {
+    const html = portableTextToHtml(ruBlocks);
     if (html.trim()) {
       try {
-        const translatedHtml = await translateHtml(html, 'RU', 'EN');
-        if (translatedHtml) result.ru = htmlToPortableText(translatedHtml, enBlocks);
+        const translatedHtml = await translateHtml(html, 'EN', 'RU');
+        if (translatedHtml) result.en = htmlToPortableText(translatedHtml, ruBlocks);
         await delay(DELAY_BETWEEN_REQUESTS_MS);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
@@ -607,7 +607,7 @@ function parseTypeFilter(argv: string[]): string | null {
 }
 
 async function main(): Promise<void> {
-  console.log('🌍 DeepL авто-переводчик для Sanity (EN → RU)');
+  console.log('🌍 DeepL авто-переводчик для Sanity (RU → EN)');
   console.log('=============================================');
 
   if (!DEEPL_API_KEY) {
@@ -630,7 +630,7 @@ async function main(): Promise<void> {
 
   const types = typeFilter ? [typeFilter] : TRANSLATABLE_TYPES;
   console.log(`🎯 Типы: ${types.join(', ')}`);
-  console.log(`🔁 Режим: ${forceOverwrite ? 'force (перезапись всех RU)' : 'дозаполнение пустых RU'}`);
+  console.log(`🔁 Режим: ${forceOverwrite ? 'force (перезапись всех EN)' : 'дозаполнение пустых EN'}`);
 
   await checkUsage();
 

@@ -36,6 +36,9 @@ export interface SiteSettings {
   heroTagline?: LocaleString;
   statusNote?: LocaleString;
   heroImage?: SanityImage;
+}
+
+export interface SeoSettings {
   seoTitle?: LocaleString;
   seoDescription?: LocaleString;
   ogImage?: SanityImage;
@@ -53,7 +56,9 @@ export interface VideoItem {
 }
 
 export interface AudioItem {
-  url: string;
+  url?: string;
+  /** Прямой URL загруженного аудиофайла (file.asset->url). */
+  fileUrl?: string;
   title?: LocaleString;
 }
 
@@ -105,8 +110,10 @@ export interface ContactSettings {
 
 export const queries = {
   siteSettings: `*[_type == "siteSettings"][0]{
-    name, role, heroTagline, statusNote, heroImage, seoTitle, seoDescription, ogImage
+    name, role, heroTagline, statusNote, heroImage
   }`,
+
+  seoSettings: `*[_type == "seoSettings"][0]{ seoTitle, seoDescription, ogImage }`,
 
   aboutSection: `*[_type == "aboutSection"][0]{ heading, body, portrait }`,
 
@@ -114,7 +121,7 @@ export const queries = {
     _id, title, slug, subtitle, body,
     photos[]{ ..., caption },
     videos[]{ url, title },
-    audios[]{ url, title }
+    audios[]{ url, title, "fileUrl": file.asset->url }
   }`,
 
   contactSettings: `*[_type == "contactSettings"][0]{
@@ -138,6 +145,10 @@ async function safeFetch<T>(query: string, fallback: T): Promise<T> {
 
 export async function getSiteSettings(): Promise<SiteSettings | null> {
   return safeFetch<SiteSettings | null>(queries.siteSettings, null);
+}
+
+export async function getSeoSettings(): Promise<SeoSettings | null> {
+  return safeFetch<SeoSettings | null>(queries.seoSettings, null);
 }
 
 export async function getAboutSection(): Promise<AboutSection | null> {

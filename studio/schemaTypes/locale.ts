@@ -1,28 +1,28 @@
 import {defineType, defineField} from 'sanity'
 
-// Локализованная строка { en, ru }. EN — источник, RU — перевод.
+// Локализованная строка { en, ru }. RU — язык ввода, EN — переведённая цель + база фронтового fallback.
 export const localeString = defineType({
   name: 'localeString',
   title: 'Локализованная строка',
   type: 'object',
   fields: [
-    defineField({name: 'en', title: 'EN', type: 'string'}),
     defineField({name: 'ru', title: 'RU', type: 'string'}),
+    defineField({name: 'en', title: 'EN', type: 'string'}),
   ],
 })
 
-// Локализованный многострочный текст { en, ru }.
+// Локализованный многострочный текст { en, ru }. RU — язык ввода, EN — переведённая цель.
 export const localeText = defineType({
   name: 'localeText',
   title: 'Локализованный текст',
   type: 'object',
   fields: [
-    defineField({name: 'en', title: 'EN', type: 'text', rows: 3}),
     defineField({name: 'ru', title: 'RU', type: 'text', rows: 3}),
+    defineField({name: 'en', title: 'EN', type: 'text', rows: 3}),
   ],
 })
 
-// Локализованный rich text (Portable Text) { en, ru }.
+// Локализованный rich text (Portable Text) { en, ru }. RU — язык ввода, EN — переведённая цель.
 const blockArray = {
   type: 'array' as const,
   of: [
@@ -62,7 +62,7 @@ export const localeRichText = defineType({
   title: 'Локализованный rich text',
   type: 'object',
   fields: [
-    defineField({name: 'en', title: 'EN', ...blockArray}),
     defineField({name: 'ru', title: 'RU', ...blockArray}),
+    defineField({name: 'en', title: 'EN', ...blockArray}),
   ],
 })

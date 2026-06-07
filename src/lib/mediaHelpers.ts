@@ -63,7 +63,7 @@ export function getVideoEmbedUrl(url: string | undefined | null): string | null 
  */
 export function getAudioEmbedUrl(
   url: string | undefined | null,
-  accentHex = 'b8895a',
+  accentHex = 'c8975a',
 ): string | null {
   if (!url) return null;
   const provider = detectProvider(url);

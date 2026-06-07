@@ -10,7 +10,7 @@ const DEFAULT_PROXY_URL = 'https://deepl.nomusicians.com/translate'
 const PROXY_URL = import.meta.env.SANITY_STUDIO_DEEPL_PROXY_URL || DEFAULT_PROXY_URL
 const PROXY_KEY = import.meta.env.SANITY_STUDIO_DEEPL_PROXY_KEY || ''
 
-// Источник — EN (язык по умолчанию), цель перевода — RU.
+// Источник — RU (язык ввода), цель перевода — EN.
 type Lang = 'EN' | 'RU'
 
 interface PTSpan {
@@ -116,13 +116,13 @@ async function translateField(
   field: {en?: string; ru?: string},
   forceOverwrite = false,
 ): Promise<{en: string; ru: string}> {
-  const sourceText = (field.en || '').trim()
-  // EN пустой — очищаем RU.
-  if (!sourceText) return {en: '', ru: ''}
+  const sourceText = (field.ru || '').trim()
+  // EN — база фронтового fallback, не затираем при пустом RU
+  if (!sourceText) return {en: field.en || '', ru: field.ru || ''}
 
   const result = {en: field.en || '', ru: field.ru || ''}
-  if (!result.ru || forceOverwrite) {
-    result.ru = await translateText(sourceText, 'RU', 'EN')
+  if (!result.en || forceOverwrite) {
+    result.en = await translateText(sourceText, 'EN', 'RU')
     await delay(DELAY_BETWEEN_REQUESTS_MS)
   }
   return result
@@ -293,33 +293,35 @@ async function translatePortableTextField(
   field: {en?: PTBlock[]; ru?: PTBlock[]},
   forceOverwrite = false,
 ): Promise<{en: PTBlock[]; ru: PTBlock[]; warnings: string[]}> {
-  const enBlocks = field.en || []
-  const hasEnText = enBlocks.some(
+  const ruBlocks = field.ru || []
+  const hasRuText = ruBlocks.some(
     (b) => b._type === 'block' && b.children.some((c) => c._type === 'span' && (c.text || '').trim()),
   )
 
-  if (!hasEnText) return {en: [], ru: [], warnings: []}
+  // EN — база фронтового fallback, не затираем при пустом RU
+  if (!hasRuText) return {en: field.en || [], ru: field.ru || [], warnings: []}
 
-  const result = {en: enBlocks, ru: field.ru || [], warnings: [] as string[]}
+  const result = {en: field.en || [], ru: ruBlocks, warnings: [] as string[]}
 
-  const html = portableTextToHtml(enBlocks)
-  if (!html.trim()) return {en: [], ru: [], warnings: []}
+  const html = portableTextToHtml(ruBlocks)
+  // EN — база фронтового fallback, не затираем при пустом RU
+  if (!html.trim()) return {en: field.en || [], ru: field.ru || [], warnings: []}
 
-  if (!result.ru.length || forceOverwrite) {
+  if (!result.en.length || forceOverwrite) {
     try {
-      const translatedHtml = await translateHtml(html, 'RU', 'EN')
-      if (translatedHtml) result.ru = htmlToPortableText(translatedHtml, enBlocks)
+      const translatedHtml = await translateHtml(html, 'EN', 'RU')
+      if (translatedHtml) result.en = htmlToPortableText(translatedHtml, ruBlocks)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      console.warn(`[translate] PT → RU не удалось: ${msg}`)
-      result.warnings.push(`RU: ${msg}`)
+      console.warn(`[translate] PT → EN не удалось: ${msg}`)
+      result.warnings.push(`EN: ${msg}`)
     }
   }
 
   return result
 }
 
-// Есть ли уже заполненные переводы (RU)?
+// Есть ли уже заполненные переводы (EN)?
 export function hasExistingTranslations(doc: Record<string, unknown>): boolean {
   if (!doc || typeof doc !== 'object') return false
 
@@ -327,10 +329,10 @@ export function hasExistingTranslations(doc: Record<string, unknown>): boolean {
     const value = doc[key]
     if (value && typeof value === 'object') {
       if (isTranslatablePortableTextObject(value)) {
-        if (value.ru && value.ru.length > 0) return true
+        if (value.en && value.en.length > 0) return true
         continue
       }
-      if (isTranslatableLanguageObject(value) && hasContent(value.ru)) return true
+      if (isTranslatableLanguageObject(value) && hasContent(value.en)) return true
       if (Array.isArray(value)) {
         if (isPortableTextArray(value)) continue
         for (const item of value) {
@@ -429,7 +431,7 @@ export async function runTranslation(options: {
     let forceOverwrite = false
     if (hasExistingTranslations(doc)) {
       forceOverwrite = confirm(
-        'Некоторые поля уже переведены на RU.\n\n' +
+        'Некоторые поля уже переведены на EN.\n\n' +
           'OK — перезаписать все переводы\n' +
           'Отмена — перевести только пустые поля',
       )

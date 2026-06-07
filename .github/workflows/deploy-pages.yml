@@ -8,7 +8,7 @@ on:
     paths-ignore:
       - 'studio/**'        # изменения только в Studio деплоит deploy-sanity.yml
   repository_dispatch:
-    types: [sanity-publish]   # Sanity webhook при публикации контента → пересборка
+    types: [sanity-content-update]   # Sanity webhook при публикации контента → пересборка
   workflow_dispatch:
 
 permissions:

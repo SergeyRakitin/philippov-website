@@ -5,10 +5,13 @@
 
 ## Языковая модель
 
-- 2 языка: **EN (по умолчанию/источник)** и **RU (перевод)**.
+- 2 языка: **EN** и **RU**. Разделяй два понятия:
+  - **Редакторский источник ввода (в Studio) — RU**: автор печатает по-русски.
+  - **Фронтовый дефолт и база fallback — EN**: `/` = EN, `/ru` = RU; EN всегда заполнен
+    (его наполняет перевод RU→EN), потому он — основа fallback.
 - Локализованное значение — объект `{ en, ru }`.
 - Fallback на фронте: `value[lang] || value.en || ''`.
-- Направление автоперевода (кнопка «Перевести», DeepL): **EN → RU**.
+- Направление автоперевода (кнопка «Перевести», DeepL): **RU → EN**.
 - Astro i18n: `defaultLocale: 'en'`, `locales: ['en','ru']`, `prefixDefaultLocale: false`
   → EN без префикса (`/`), RU с префиксом (`/ru`).
 
@@ -19,7 +22,7 @@
 
 ## Документы
 
-### 1. `siteSettings` (singleton, _id: `siteSettings`)  — Hero + SEO
+### 1. `siteSettings` (singleton, _id: `siteSettings`)  — Hero
 | поле | тип | назначение |
 |---|---|---|
 | `name` | localeString | «Sergey Philippov» / «Сергей Филиппов» |
@@ -27,18 +30,22 @@
 | `heroTagline` | localeText | абзац-вступление в hero |
 | `statusNote` | localeString | «UK Global Talent Visa Holder…» (опц.) |
 | `heroImage` | image (hotspot) | фон/портрет hero (опц.) |
+
+### 2. `seoSettings` (singleton, _id: `seoSettings`) — SEO
+| поле | тип | назначение |
+|---|---|---|
 | `seoTitle` | localeString | `<title>` (опц., fallback = name + role) |
 | `seoDescription` | localeText | meta description (опц., fallback = heroTagline) |
-| `ogImage` | image | картинка для соцсетей (опц.) |
+| `ogImage` | image | картинка для соцсетей (опц., fallback = heroImage) |
 
-### 2. `aboutSection` (singleton, _id: `aboutSection`) — About
+### 3. `aboutSection` (singleton, _id: `aboutSection`) — About
 | поле | тип | назначение |
 |---|---|---|
 | `heading` | localeString | заголовок секции («About») |
 | `body` | localeRichText | биография (rich text) |
 | `portrait` | image (hotspot) | портрет (опц.) |
 
-### 3. `section` (orderable document) — произвольные разделы портфолио
+### 4. `section` (orderable document) — произвольные разделы портфолио
 | поле | тип | назначение |
 |---|---|---|
 | `title` | localeString | «Theatre Music» / «Sound Design» |
@@ -53,9 +60,9 @@
 
 Вложенные object-типы:
 - `videoItem` → `{ url: url (required), title: localeString }`
-- `audioItem` → `{ url: url (required), title: localeString }`
+- `audioItem` → `{ url?: url, file?: file (audio), title: localeString }` — url теперь опц., добавлен file; валидация на уровне объекта: «хотя бы одно из url/file»
 
-### 4. `contactSettings` (singleton, _id: `contactSettings`) — Contacts (низ страницы)
+### 5. `contactSettings` (singleton, _id: `contactSettings`) — Contacts (низ страницы)
 | поле | тип | назначение |
 |---|---|---|
 | `heading` | localeString | заголовок секции («Contact») |
@@ -77,7 +84,10 @@
 
 ```groq
 // siteSettings
-*[_type == "siteSettings"][0]{ name, role, heroTagline, statusNote, heroImage, seoTitle, seoDescription, ogImage }
+*[_type == "siteSettings"][0]{ name, role, heroTagline, statusNote, heroImage }
+
+// seoSettings
+*[_type == "seoSettings"][0]{ seoTitle, seoDescription, ogImage }
 
 // aboutSection
 *[_type == "aboutSection"][0]{ heading, body, portrait }
@@ -87,7 +97,7 @@
   _id, title, slug, subtitle, body,
   photos[]{ ..., caption },
   videos[]{ url, title },
-  audios[]{ url, title }
+  audios[]{ url, title, "fileUrl": file.asset->url }
 }
 
 // contactSettings
@@ -97,12 +107,12 @@
 ## translatableTypes / singletons (studio/constants/translatableTypes.ts)
 
 ```ts
-translatableTypes = ['siteSettings','aboutSection','contactSettings','section']
-singletonDocumentIds = ['siteSettings','aboutSection','contactSettings']
+translatableTypes = ['siteSettings','seoSettings','aboutSection','contactSettings','section']
+singletonDocumentIds = ['siteSettings','seoSettings','aboutSection','contactSettings']
 ```
 
 ## Медиа-эмбеды (фронт)
 
 - video: YouTube (`youtube.com/watch?v=`, `youtu.be/`) и Vimeo → `<iframe>`; иначе — ссылка.
-- audio: SoundCloud → `https://w.soundcloud.com/player/?url=<enc>`; Spotify (`open.spotify.com/...`) → `/embed/`; иначе — ссылка.
+- audio: загруженный файл (`fileUrl`) → кастомный HTML5-плеер (приоритет); SoundCloud → цветной `<iframe>` (`color=%23c8975a`, акцент сайта); Spotify (`open.spotify.com/...`) → `/embed/`; иначе — ссылка.
 - фото: компонент `PhotoCarousel.astro`.

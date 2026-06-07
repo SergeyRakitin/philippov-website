@@ -8,6 +8,12 @@ export default defineType({
   icon: () => '🎼',
   fields: [
     defineField({
+      name: 'visible',
+      title: 'Показывать на сайте',
+      type: 'boolean',
+      initialValue: true,
+    }),
+    defineField({
       name: 'title',
       title: 'Название раздела',
       type: 'localeString',
@@ -47,12 +53,6 @@ export default defineType({
       title: 'Аудио',
       type: 'array',
       of: [{type: 'audioItem'}],
-    }),
-    defineField({
-      name: 'visible',
-      title: 'Показывать на сайте',
-      type: 'boolean',
-      initialValue: true,
     }),
     orderRankField({type: 'section'}),
   ],

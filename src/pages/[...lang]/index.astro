@@ -14,6 +14,7 @@ import { type Lang } from '../../i18n/translations';
 import { getLangStaticPaths, getLocalized } from '../../lib/i18n-helpers';
 import {
   getSiteSettings,
+  getSeoSettings,
   getAboutSection,
   getSections,
   getContactSettings,
@@ -31,8 +32,9 @@ interface Props {
 const { lang } = Astro.props as Props;
 
 // Загрузка контента (параллельно). Любая ошибка → безопасный fallback внутри функций.
-const [settings, about, sections, contact] = await Promise.all([
+const [settings, seo, about, sections, contact] = await Promise.all([
   getSiteSettings(),
+  getSeoSettings(),
   getAboutSection(),
   getSections(),
   getContactSettings(),
@@ -43,13 +45,13 @@ const name = getLocalized(settings?.name, lang);
 const role = getLocalized(settings?.role, lang);
 const brand = name || 'Sergey Philippov';
 
-// SEO
-const seoTitle = getLocalized(settings?.seoTitle, lang);
+// SEO (отдельный singleton seoSettings; fallback — на поля hero из siteSettings)
+const seoTitle = getLocalized(seo?.seoTitle, lang);
 const title = seoTitle || [name, role].filter(Boolean).join(' — ') || brand;
-const description = getLocalized(settings?.seoDescription, lang) || getLocalized(settings?.heroTagline, lang);
+const description = getLocalized(seo?.seoDescription, lang) || getLocalized(settings?.heroTagline, lang);
 
-// OG image (siteSettings.ogImage → fallback heroImage)
-const ogSource = settings?.ogImage || settings?.heroImage;
+// OG image (seoSettings.ogImage → fallback heroImage из siteSettings)
+const ogSource = seo?.ogImage || settings?.heroImage;
 const ogImage = ogSource ? urlFor(ogSource).width(1200).height(630).fit('crop').quality(80).url() : '';
 
 // Флаги наличия секций (для навигации)

@@ -599,12 +599,12 @@ export function StudioNavbarWithLanguageFilter(props: NavbarProps): JSX.Element 
                   Отображать поля
                 </Text>
                 <Flex gap={2} align="center">
-                  <Switch checked={visibility.en} onChange={() => toggle('en')} />
-                  <Text size={1}>EN</Text>
-                </Flex>
-                <Flex gap={2} align="center">
                   <Switch checked={visibility.ru} onChange={() => toggle('ru')} />
                   <Text size={1}>RU</Text>
+                </Flex>
+                <Flex gap={2} align="center">
+                  <Switch checked={visibility.en} onChange={() => toggle('en')} />
+                  <Text size={1}>EN</Text>
                 </Flex>
                 <Box style={{height: 20, width: 1, background: 'var(--card-border-color, #e4e8ef)'}} />
                 {resolvedDocument?.id &&

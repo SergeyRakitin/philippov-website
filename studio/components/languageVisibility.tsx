@@ -6,17 +6,17 @@ export type LanguageVisibility = Record<LanguageKey, boolean>
 
 const STORAGE_KEY = 'philippov.languageVisibility'
 
-// EN — язык по умолчанию (источник), показываем его; RU скрыт до явного включения.
+// RU — язык ввода по умолчанию, показываем его; EN скрыт до явного включения.
 const DEFAULT_VISIBILITY: LanguageVisibility = {
-  en: true,
-  ru: false,
+  en: false,
+  ru: true,
 }
 
 function normalizeVisibility(input: unknown): LanguageVisibility {
   const raw = input && typeof input === 'object' ? (input as Partial<LanguageVisibility>) : {}
   return {
-    en: raw.en === undefined ? true : Boolean(raw.en),
-    ru: Boolean(raw.ru),
+    en: raw.en === undefined ? false : Boolean(raw.en),
+    ru: raw.ru === undefined ? true : Boolean(raw.ru),
   }
 }
 

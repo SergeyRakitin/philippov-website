@@ -23,7 +23,7 @@ export const videoItem = defineType({
   },
 })
 
-// Аудио-ссылка (SoundCloud / Spotify / др.)
+// Аудио: ссылка (SoundCloud / Spotify / др.) ИЛИ загруженный файл (mp3 / wav)
 export const audioItem = defineType({
   name: 'audioItem',
   title: 'Аудио',
@@ -33,15 +33,26 @@ export const audioItem = defineType({
       name: 'url',
       title: 'Ссылка на трек',
       type: 'url',
-      description: 'SoundCloud, Spotify и др.',
-      validation: (Rule) => Rule.required(),
+      description: 'SoundCloud, Spotify и др. — или загрузите файл ниже',
+    }),
+    defineField({
+      name: 'file',
+      title: 'Аудиофайл (mp3 / wav)',
+      type: 'file',
+      options: {accept: 'audio/*,.mp3,.wav'},
     }),
     defineField({name: 'title', title: 'Заголовок', type: 'localeString'}),
   ],
+  // Хотя бы одно из url/file — валидация на уровне объекта, чтобы видеть оба значения.
+  validation: (Rule) =>
+    Rule.custom((fields: {url?: string; file?: unknown} | undefined) => {
+      if (!fields?.url && !fields?.file) return 'Укажите ссылку или загрузите файл'
+      return true
+    }),
   preview: {
-    select: {title: 'title.en', url: 'url'},
-    prepare({title, url}) {
-      return {title: title || 'Аудио', subtitle: url}
+    select: {title: 'title.en', url: 'url', fileName: 'file.asset.originalFilename'},
+    prepare({title, url, fileName}) {
+      return {title: title || 'Аудио', subtitle: url || fileName || 'Аудиофайл'}
     },
   },
 })
