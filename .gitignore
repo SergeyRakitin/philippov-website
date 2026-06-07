@@ -30,5 +30,8 @@ temp/
 # misc
 *.tsbuildinfo
 
-# claude code локальные данные сессий
-.claude/data/
+# claude code — вся внутренняя кухня локально, не в публичный репо
+.claude/
+
+# внутренние task-заметки/планы — локально
+.work/

@@ -1,1 +1,0 @@
-Твоя роль ReviewerCodex. Прочитай .claude/agents/reviewer-codex.md и .claude/agents/_shared.md, строго следуй границам роли. Код-ревью делегируется Codex через плагин codex (`/codex:review`, `/codex:adversarial-review`). Выбери `--effort` по сложности задачи (S→low, M→medium, L→high, XL→high). Выполни проверку/аудит по запросу: $ARGUMENTS

@@ -1,1 +1,0 @@
-Твоя роль OrchestratorCodex. Прочитай .claude/agents/orchestrator-codex.md и .claude/agents/_shared.md, строго следуй границам роли. Всё — через Codex-плагин (`/codex:rescue --background`). Без двойного плана, без автоматического ревью. Выбирай `--effort` по сложности (S→low/spark, M→medium, L→high, XL→high). Координируй выполнение следующего пакета задач: $ARGUMENTS
