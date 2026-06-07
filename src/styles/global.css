@@ -428,17 +428,25 @@
 
   /* ── Hero (полноэкранный sticky-раннер с параллаксом) ──── */
 
-  /* Высокий wrapper задаёт диапазон скролла для sticky-секции. */
+  /* По умолчанию — обычный первый экран: no-JS / краулеры / reduced-motion
+     получают hero на весь вьюпорт без мёртвого скролла. */
   .hero-wrapper {
     position: relative;
     z-index: 0;
+    min-height: 100vh;
+  }
+
+  /* Высокий wrapper (диапазон скролла для параллакса) включается только
+     при активном JS (класс .js на <html>) — по конвенции .js .reveal. */
+  .js .hero-wrapper {
     height: 320vh;
+    min-height: unset;
   }
   @media (max-width: 767px) and (orientation: portrait) {
-    .hero-wrapper { height: 200vh; }
+    .js .hero-wrapper { height: 200vh; }
   }
   @media (orientation: landscape) and (max-height: 500px) {
-    .hero-wrapper { height: 160vh; }
+    .js .hero-wrapper { height: 160vh; }
   }
 
   .hero-sticky {
@@ -575,4 +583,10 @@ html {
     scroll-behavior: auto !important;
   }
   .reveal { opacity: 1 !important; transform: none !important; }
+  /* JS есть, класс .js стоит, но параллакс не запускается —
+     схлопываем раннер, чтобы не было мёртвого скролла. */
+  .js .hero-wrapper {
+    height: auto !important;
+    min-height: 100vh !important;
+  }
 }
