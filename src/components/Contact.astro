@@ -1,6 +1,6 @@
 ---
-// Contact: заголовок, email (mailto), телефон (tel), локация,
-// заметка о доступности, соцсети/стриминг (иконки по platform).
+// Contact: заголовок-шапка, email + telegram (главные CTA), телефон (вторично),
+// соцсети/стриминг (плотный ряд иконок по platform). Одноколоночная компоновка.
 import { t, type Lang } from '../i18n/translations';
 import { getLocalized } from '../lib/i18n-helpers';
 import type { ContactSettings, SocialPlatform } from '../lib/sanity';
@@ -15,9 +15,20 @@ const { lang, contact } = Astro.props;
 const heading = getLocalized(contact?.heading, lang) || t(lang, 'nav.contact');
 const email = contact?.email?.trim() || '';
 const phone = contact?.phone?.trim() || '';
-const location = getLocalized(contact?.location, lang);
 const availability = getLocalized(contact?.availabilityNote, lang);
 const socials = (contact?.socials ?? []).filter((s) => s?.url);
+
+// Telegram — primary-контакт (рядом с email), не из socials.
+// Нормализация: полный URL — как есть; иначе t.me/<handle без @>.
+// Чистый handle — без протокола, без опц. префикса t.me/, без @.
+const telegram = contact?.telegram?.trim() || '';
+const telegramHandle = telegram
+  .replace(/^https?:\/\//, '')
+  .replace(/^t\.me\//, '')
+  .replace(/^@/, '');
+const telegramUrl = telegram
+  ? (/^https?:\/\//.test(telegram) ? telegram : `https://t.me/${telegramHandle}`)
+  : '';
 
 // Подписи платформ
 const platformLabel: Record<SocialPlatform, string> = {
@@ -40,74 +51,81 @@ const icons: Record<SocialPlatform, string> = {
   youtube: '<path fill="currentColor" d="M22.5 7.2a3 3 0 00-2.1-2.1C18.6 4.5 12 4.5 12 4.5s-6.6 0-8.4.6A3 3 0 001.5 7.2 31 31 0 001 12a31 31 0 00.5 4.8 3 3 0 002.1 2.1c1.8.6 8.4.6 8.4.6s6.6 0 8.4-.6a3 3 0 002.1-2.1A31 31 0 0023 12a31 31 0 00-.5-4.8zM10 15.5v-7l6 3.5-6 3.5z"/>',
   website: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',
 };
+
+// Иконка конверта для email-CTA.
+const mailIcon = '<path fill="none" stroke="currentColor" stroke-width="1.6" d="M3.5 6.5h17v11h-17z"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="m3.5 7 8.5 6 8.5-6"/>';
 ---
 
-<section id="contact" class="section-pad" style="background: var(--color-ink);">
+<section id="contact" class="section-pad contact-section">
   <div class="container-site">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-      <!-- Заголовок + доступность -->
-      <div class="lg:col-span-5">
-        <p class="eyebrow reveal mb-4">{t(lang, 'contact.write')}</p>
-        <h2 class="display-lg reveal" style="transition-delay:.05s">{heading}</h2>
-        {availability && (
-          <p class="lead mt-6 max-w-md reveal" style="transition-delay:.1s">{availability}</p>
+    <!-- Шапка секции -->
+    <div class="contact-head">
+      <p class="eyebrow reveal mb-4">{t(lang, 'contact.write')}</p>
+      <h2 class="display-lg reveal reveal-d1">{heading}</h2>
+      {availability && (
+        <p class="lead mt-6 max-w-md reveal reveal-d2">{availability}</p>
+      )}
+    </div>
+
+    <!-- Контакты -->
+    <div class="contact-body reveal reveal-d3">
+      <!-- Главные CTA: email + telegram -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {email && (
+          <a href={`mailto:${email}`} class="contact-cta" aria-label={`${t(lang, 'contact.email')}: ${email}`}>
+            <span class="contact-cta__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true" set:html={mailIcon} />
+            </span>
+            <span class="contact-cta__body">
+              <span class="contact-cta__label">{t(lang, 'contact.email')}</span>
+              <span class="contact-cta__value">{email}</span>
+            </span>
+          </a>
+        )}
+
+        {telegramUrl && (
+          <a
+            href={telegramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="contact-cta"
+            aria-label={`${t(lang, 'contact.telegram')}: @${telegramHandle}`}
+          >
+            <span class="contact-cta__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons.telegram} />
+            </span>
+            <span class="contact-cta__body">
+              <span class="contact-cta__label">{t(lang, 'contact.telegram')}</span>
+              <span class="contact-cta__value">@{telegramHandle}</span>
+            </span>
+          </a>
         )}
       </div>
 
-      <!-- Контакты -->
-      <div class="lg:col-span-7 reveal" style="transition-delay:.12s">
-        <dl class="space-y-8">
-          {email && (
-            <div>
-              <dt class="eyebrow-muted mb-2">{t(lang, 'contact.email')}</dt>
-              <dd>
-                <a href={`mailto:${email}`} class="display-md link-underline" style="font-size:clamp(1.4rem,2.4vw,2rem);">
-                  {email}
-                </a>
-              </dd>
-            </div>
-          )}
+      <!-- Телефон — вторичный контакт -->
+      {phone && (
+        <p class="contact-secondary mt-6">
+          <span class="contact-secondary__label">{t(lang, 'contact.phone')}</span>
+          <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="text-xl link-underline">{phone}</a>
+        </p>
+      )}
 
-          {phone && (
-            <div>
-              <dt class="eyebrow-muted mb-2">{t(lang, 'contact.phone')}</dt>
-              <dd>
-                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="text-xl link-underline">
-                  {phone}
-                </a>
-              </dd>
-            </div>
-          )}
-
-          {location && (
-            <div>
-              <dt class="eyebrow-muted mb-2">{t(lang, 'contact.location')}</dt>
-              <dd class="text-xl text-text">{location}</dd>
-            </div>
-          )}
-        </dl>
-
-        <!-- Соцсети -->
-        {socials.length > 0 && (
-          <div class="flex flex-wrap gap-3 mt-12 pt-8 border-t border-line-soft">
-            {socials.map((s) => (
-              <a
-                href={s.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center gap-2.5 px-4 py-2.5 border transition-colors group"
-                style="border-color: var(--color-line-strong); border-radius: var(--radius-full); color: var(--color-text-secondary);"
-                aria-label={s.label || platformLabel[s.platform] || s.platform}
-              >
-                <svg class="w-5 h-5 transition-colors group-hover:text-accent" viewBox="0 0 24 24" aria-hidden="true" set:html={icons[s.platform] || icons.website} />
-                <span class="text-sm nav-link group-hover:text-paper" style="letter-spacing:.08em;">
-                  {s.label || platformLabel[s.platform] || s.platform}
-                </span>
-              </a>
-            ))}
-          </div>
-        )}
-      </div>
+      <!-- Соцсети — плотный ряд иконок -->
+      {socials.length > 0 && (
+        <div class="flex flex-wrap gap-3 mt-10 pt-8 border-t border-line-soft">
+          {socials.map((s) => (
+            <a
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="contact-social"
+              aria-label={s.label || platformLabel[s.platform] || s.platform}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[s.platform] || icons.website} />
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   </div>
 </section>

@@ -68,8 +68,8 @@
 | `heading` | localeString | заголовок секции («Contact») |
 | `email` | string | e-mail |
 | `phone` | string | телефон (опц.) |
-| `location` | localeString | «London, UK» |
-| `availabilityNote` | localeText | «Available for…» (опц.) |
+| `telegram` | string | Telegram-контакт (@username или t.me/…) (опц.) |
+| `availabilityNote` | localeText | Сопровождающий текст рядом с заголовком (опц.) |
 | `socials` | array<`socialLink`> | соцсети/стриминг |
 
 Вложенный тип `socialLink` → `{ platform: string (list: spotify/soundcloud/instagram/telegram/whatsapp/youtube/website), url: url, label: string (опц.) }`
@@ -101,7 +101,7 @@
 }
 
 // contactSettings
-*[_type == "contactSettings"][0]{ heading, email, phone, location, availabilityNote, socials[]{ platform, url, label } }
+*[_type == "contactSettings"][0]{ heading, email, phone, telegram, availabilityNote, socials[]{ platform, url, label } }
 ```
 
 ## translatableTypes / singletons (studio/constants/translatableTypes.ts)

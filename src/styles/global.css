@@ -620,6 +620,117 @@
     50% { transform: translate(-50%, 8px); }
   }
 
+  /* ── Секция контактов ──────────────────────────────────── */
+
+  /* Фон секции (раньше был inline var(--color-ink)). */
+  .contact-section { background: var(--color-ink); }
+
+  /* Шапка секции (eyebrow + заголовок) — одной колонкой сверху. */
+  .contact-head { margin-bottom: 3rem; }
+
+  /* Блок контактов под шапкой. Ширина ограничена, чтобы CTA-карточки
+     не растягивались на весь широкий экран — композиция остаётся плотной. */
+  .contact-body { max-width: 46rem; }
+
+  /* Главные CTA (email, telegram) — крупная кликабельная карточка-строка. */
+  .contact-cta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-paper);
+    transition: border-color .3s, background .3s, transform .3s;
+  }
+  .contact-cta:hover {
+    border-color: var(--color-accent);
+    background: var(--color-surface-hover);
+  }
+
+  .contact-cta__icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-line-strong);
+    color: var(--color-accent);
+    transition: border-color .3s, background .3s;
+  }
+  .contact-cta:hover .contact-cta__icon {
+    border-color: var(--color-accent);
+    background: var(--color-accent-glow);
+  }
+  .contact-cta__icon svg { width: 1.35rem; height: 1.35rem; }
+
+  .contact-cta__body { min-width: 0; }
+
+  .contact-cta__label {
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--color-muted-low);
+    margin-bottom: 0.25rem;
+  }
+
+  .contact-cta__value {
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+    line-height: 1.15;
+    color: var(--color-paper);
+    word-break: break-word;
+  }
+
+  /* Вторичный контакт (телефон) — компактная строка под CTA. */
+  .contact-secondary {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .contact-secondary__label {
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    color: var(--color-muted-low);
+  }
+
+  /* Плотный ряд соц-иконок (раньше «пилюли» с inline-бордером/радиусом). */
+  .contact-social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    transition: border-color .3s, color .3s, background .3s;
+  }
+  .contact-social:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: var(--color-accent-glow);
+  }
+  .contact-social svg { width: 1.25rem; height: 1.25rem; }
+
+  /* Утилиты задержки reveal (раньше inline transition-delay).
+     Специфичность под .js .reveal: shorthand-transition в .js .reveal (0,2,0)
+     сбрасывает delay в 0 — поэтому задержку вешаем на ту же .js-ветку (0,3,0),
+     иначе она проиграет каскаду и стаггер не сработает. */
+  .js .reveal.reveal-d1 { transition-delay: .05s; }
+  .js .reveal.reveal-d2 { transition-delay: .1s; }
+  .js .reveal.reveal-d3 { transition-delay: .15s; }
+
   /* ── Прочее ─────────────────────────────────────────────── */
 
   .hairline { height: 1px; background: var(--color-line); }

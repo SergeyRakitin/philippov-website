@@ -101,7 +101,7 @@ export interface ContactSettings {
   heading?: LocaleString;
   email?: string;
   phone?: string;
-  location?: LocaleString;
+  telegram?: string;
   availabilityNote?: LocaleString;
   socials?: SocialLink[];
 }
@@ -125,7 +125,7 @@ export const queries = {
   }`,
 
   contactSettings: `*[_type == "contactSettings"][0]{
-    heading, email, phone, location, availabilityNote,
+    heading, email, phone, telegram, availabilityNote,
     socials[]{ platform, url, label }
   }`,
 } as const;

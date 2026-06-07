@@ -61,8 +61,7 @@ const hasAbout = Boolean(
   about?.portrait,
 );
 const hasContact = Boolean(
-  contact?.email || contact?.phone ||
-  getLocalized(contact?.location, lang) ||
+  contact?.email || contact?.phone || contact?.telegram ||
   (contact?.socials?.length ?? 0) > 0 ||
   getLocalized(contact?.heading, lang),
 );

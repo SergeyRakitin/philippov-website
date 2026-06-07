@@ -42,7 +42,7 @@ export const translations = {
     // Контакты
     'contact.email': 'Email',
     'contact.phone': 'Phone',
-    'contact.location': 'Based in',
+    'contact.telegram': 'Telegram',
     'contact.write': 'Get in touch',
 
     // Доступность
@@ -92,7 +92,7 @@ export const translations = {
     // Контакты
     'contact.email': 'Email',
     'contact.phone': 'Телефон',
-    'contact.location': 'Базируется в',
+    'contact.telegram': 'Telegram',
     'contact.write': 'Связаться',
 
     // Доступность

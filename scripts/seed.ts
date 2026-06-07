@@ -152,11 +152,11 @@ const contactSettings = {
   heading: { _type: 'localeString', en: 'Contact', ru: '' },
   email: 'sphilippov2017@gmail.com',
   phone: '+79091659533',
-  location: { _type: 'localeString', en: 'London, UK', ru: '' },
+  telegram: '',
   availabilityNote: {
     _type: 'localeText',
-    en: 'Available for theatre productions and creative collaborations in the UK.',
-    ru: '',
+    en: 'Available for theatre & film productions and creative projects.',
+    ru: 'Открыт к участию в театральных постановках, кино и творческих проектах.',
   },
   socials: [
     {
