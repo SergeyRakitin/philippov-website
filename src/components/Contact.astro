@@ -1,6 +1,6 @@
 ---
-// Contact: заголовок-шапка, email + telegram (главные CTA), телефон (вторично),
-// соцсети/стриминг (плотный ряд иконок по platform). Одноколоночная компоновка.
+// Contact: сплит — слева шапка (eyebrow + заголовок + availability),
+// справа список контактов (email/telegram/phone строками dl) и ряд соц-иконок.
 import { t, type Lang } from '../i18n/translations';
 import { getLocalized } from '../lib/i18n-helpers';
 import type { ContactSettings, SocialPlatform } from '../lib/sanity';
@@ -51,81 +51,73 @@ const icons: Record<SocialPlatform, string> = {
   youtube: '<path fill="currentColor" d="M22.5 7.2a3 3 0 00-2.1-2.1C18.6 4.5 12 4.5 12 4.5s-6.6 0-8.4.6A3 3 0 001.5 7.2 31 31 0 001 12a31 31 0 00.5 4.8 3 3 0 002.1 2.1c1.8.6 8.4.6 8.4.6s6.6 0 8.4-.6a3 3 0 002.1-2.1A31 31 0 0023 12a31 31 0 00-.5-4.8zM10 15.5v-7l6 3.5-6 3.5z"/>',
   website: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/>',
 };
-
-// Иконка конверта для email-CTA.
-const mailIcon = '<path fill="none" stroke="currentColor" stroke-width="1.6" d="M3.5 6.5h17v11h-17z"/><path fill="none" stroke="currentColor" stroke-width="1.6" d="m3.5 7 8.5 6 8.5-6"/>';
 ---
 
 <section id="contact" class="section-pad contact-section">
   <div class="container-site">
-    <!-- Шапка секции -->
-    <div class="contact-head">
-      <p class="eyebrow reveal mb-4">{t(lang, 'contact.write')}</p>
-      <h2 class="display-lg reveal reveal-d1">{heading}</h2>
-      {availability && (
-        <p class="lead mt-6 max-w-md reveal reveal-d2">{availability}</p>
-      )}
-    </div>
-
-    <!-- Контакты -->
-    <div class="contact-body reveal reveal-d3">
-      <!-- Главные CTA: email + telegram -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {email && (
-          <a href={`mailto:${email}`} class="contact-cta" aria-label={`${t(lang, 'contact.email')}: ${email}`}>
-            <span class="contact-cta__icon">
-              <svg viewBox="0 0 24 24" aria-hidden="true" set:html={mailIcon} />
-            </span>
-            <span class="contact-cta__body">
-              <span class="contact-cta__label">{t(lang, 'contact.email')}</span>
-              <span class="contact-cta__value">{email}</span>
-            </span>
-          </a>
-        )}
-
-        {telegramUrl && (
-          <a
-            href={telegramUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="contact-cta"
-            aria-label={`${t(lang, 'contact.telegram')}: @${telegramHandle}`}
-          >
-            <span class="contact-cta__icon">
-              <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons.telegram} />
-            </span>
-            <span class="contact-cta__body">
-              <span class="contact-cta__label">{t(lang, 'contact.telegram')}</span>
-              <span class="contact-cta__value">@{telegramHandle}</span>
-            </span>
-          </a>
+    <div class="contact-split">
+      <!-- Левая колонка: шапка секции -->
+      <div class="contact-split__head">
+        <p class="eyebrow reveal mb-4">{t(lang, 'contact.write')}</p>
+        <h2 class="display-lg reveal reveal-d1">{heading}</h2>
+        {availability && (
+          <p class="lead reveal reveal-d2">{availability}</p>
         )}
       </div>
 
-      <!-- Телефон — вторичный контакт -->
-      {phone && (
-        <p class="contact-secondary mt-6">
-          <span class="contact-secondary__label">{t(lang, 'contact.phone')}</span>
-          <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="text-xl link-underline">{phone}</a>
-        </p>
-      )}
+      <!-- Правая колонка: список контактов + соц-иконки -->
+      <div class="contact-split__contacts reveal reveal-d3">
+        <dl class="contact-dl">
+          {email && (
+            <div class="contact-row contact-row--email">
+              <dt class="contact-row__label">{t(lang, 'contact.email')}</dt>
+              <dd>
+                <a href={`mailto:${email}`} class="contact-row__value">{email}</a>
+              </dd>
+            </div>
+          )}
 
-      <!-- Соцсети — плотный ряд иконок -->
-      {socials.length > 0 && (
-        <div class="flex flex-wrap gap-3 mt-10 pt-8 border-t border-line-soft">
-          {socials.map((s) => (
-            <a
-              href={s.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="contact-social"
-              aria-label={s.label || platformLabel[s.platform] || s.platform}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[s.platform] || icons.website} />
-            </a>
-          ))}
-        </div>
-      )}
+          {telegramUrl && (
+            <div class="contact-row">
+              <dt class="contact-row__label">{t(lang, 'contact.telegram')}</dt>
+              <dd>
+                <a
+                  href={telegramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="contact-row__value"
+                >@{telegramHandle}</a>
+              </dd>
+            </div>
+          )}
+
+          {phone && (
+            <div class="contact-row">
+              <dt class="contact-row__label">{t(lang, 'contact.phone')}</dt>
+              <dd>
+                <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} class="contact-row__value">{phone}</a>
+              </dd>
+            </div>
+          )}
+        </dl>
+
+        <!-- Соцсети — плотный ряд иконок -->
+        {socials.length > 0 && (
+          <div class="contact-socials">
+            {socials.map((s) => (
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="contact-social"
+                aria-label={s.label || platformLabel[s.platform] || s.platform}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" set:html={icons[s.platform] || icons.website} />
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   </div>
 </section>

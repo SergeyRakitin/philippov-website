@@ -625,83 +625,74 @@
   /* Фон секции (раньше был inline var(--color-ink)). */
   .contact-section { background: var(--color-ink); }
 
-  /* Шапка секции (eyebrow + заголовок) — одной колонкой сверху. */
-  .contact-head { margin-bottom: 3rem; }
+  /* Сплит: слева шапка, справа контакты. На узком — одна колонка,
+     на ≥768px (md) — две (0.9fr / 1.1fr). max-width держит блок от
+     растягивания на 80rem-контейнере, колонки не разъезжаются. */
+  .contact-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    max-width: 60rem;
+  }
+  @media (min-width: 768px) {
+    .contact-split {
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+  }
 
-  /* Блок контактов под шапкой. Ширина ограничена, чтобы CTA-карточки
-     не растягивались на весь широкий экран — композиция остаётся плотной. */
-  .contact-body { max-width: 46rem; }
+  /* Левая колонка — отступ lead держим в split-специфике, не Tailwind-утилитой. */
+  .contact-split__head .lead { margin-top: 1.25rem; }
 
-  /* Главные CTA (email, telegram) — крупная кликабельная карточка-строка. */
-  .contact-cta {
+  /* Правая колонка — список контактов строками + соц-иконки под ним. */
+  .contact-dl {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .contact-row {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.25rem 1.5rem;
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    color: var(--color-paper);
-    transition: border-color .3s, background .3s, transform .3s;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-line);
   }
-  .contact-cta:hover {
-    border-color: var(--color-accent);
-    background: var(--color-surface-hover);
-  }
-
-  .contact-cta__icon {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--color-line-strong);
-    color: var(--color-accent);
-    transition: border-color .3s, background .3s;
-  }
-  .contact-cta:hover .contact-cta__icon {
-    border-color: var(--color-accent);
-    background: var(--color-accent-glow);
-  }
-  .contact-cta__icon svg { width: 1.35rem; height: 1.35rem; }
-
-  .contact-cta__body { min-width: 0; }
-
-  .contact-cta__label {
+  .contact-row__label {
     font-family: var(--font-body);
-    text-transform: uppercase;
     font-size: 0.72rem;
-    font-weight: 500;
+    text-transform: uppercase;
     letter-spacing: 0.16em;
+    font-weight: 500;
     color: var(--color-muted-low);
-    margin-bottom: 0.25rem;
   }
-
-  .contact-cta__value {
+  /* Значение строки. nowrap на всех (email/telegram/phone короткие после
+     него тоже не переносятся), у email — меньший адаптивный шрифт, чтобы
+     24-символьная почта влезла в узкую правую колонку на мобиле. */
+  .contact-row__value {
     font-family: var(--font-display);
     font-weight: 300;
-    font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
     line-height: 1.15;
     color: var(--color-paper);
-    word-break: break-word;
+    white-space: nowrap;
+    transition: color .3s;
+  }
+  .contact-row__value:hover { color: var(--color-accent-bright); }
+  /* Email — длиннее всех (24 символа). На 375px правит нижняя граница
+     clamp (0.95rem=15.2px), на десктопе — верхняя (1.25rem); в обоих
+     случаях nowrap-строка влезает в правую колонку с запасом. */
+  .contact-row--email .contact-row__value {
+    font-size: clamp(0.95rem, 3.4vw, 1.25rem);
   }
 
-  /* Вторичный контакт (телефон) — компактная строка под CTA. */
-  .contact-secondary {
+  /* Ряд соц-иконок под списком контактов (вариант D — без верхней линии). */
+  .contact-socials {
     display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
     flex-wrap: wrap;
-  }
-  .contact-secondary__label {
-    font-family: var(--font-body);
-    text-transform: uppercase;
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    color: var(--color-muted-low);
+    gap: 0.75rem;
+    margin-top: 1.5rem;
   }
 
   /* Плотный ряд соц-иконок (раньше «пилюли» с inline-бордером/радиусом). */
