@@ -72,7 +72,8 @@ const altBg = index % 2 === 1;
   <!-- Видео -->
   {videos.length > 0 && (
     <div class="container-site">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+      <!-- Одно видео — на всю ширину контейнера; 2+ — сетка 2-up на lg. -->
+      <div class={`grid grid-cols-1 ${videos.length > 1 ? 'lg:grid-cols-2' : ''} gap-8 mb-12`}>
         {videos.map((video) => <VideoEmbed lang={lang} item={video} />)}
       </div>
     </div>
