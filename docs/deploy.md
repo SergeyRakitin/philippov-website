@@ -12,13 +12,13 @@
 | Веб-сервер | **nginx** (не Caddy — его на узле нет) |
 | Докрут | `/var/www/sergeyphilippovmusic` (статика Astro) |
 | nginx-сайт | `/etc/nginx/sites-available/sergeyphilippovmusic` (он же `default_server` на :80 и :443) |
-| Порты | :80 (HTTP), :443 (HTTPS, self-signed origin-cert) — UFW открыты 80/443 |
-| TLS на origin | self-signed `/etc/nginx/ssl/sergeyphilippovmusic-selfsigned.*` (под Cloudflare SSL «Full») |
+| Порты | :80 (HTTP), :443 (HTTPS) — UFW открыты 80/443 |
+| TLS на origin | **Let's Encrypt** (`certbot --nginx`), авто-выпуск через `le-bootstrap.timer`, как только DNS заведут. До выпуска — self-signed заглушка, чтобы :443 не падал |
 | Репозиторий | `github.com/SergeyRakitin/philippov-website` |
 
 > **Двойная роль.** Сайт одновременно — «сайт-прикрытие» VPN-узла: на голом IP `185.228.235.152`
 > отдаётся настоящее портфолио (раньше там был временный «конструктор ладов», снесён, бэкап в
-> `/root/backups/musicscales-*` на сервере).
+> `/root/backups/musicscales-*`).
 
 ## Авто-деплой (push-to-deploy)
 
@@ -38,17 +38,32 @@
 | `VPS_HOST` | `185.228.235.152` |
 | `VPS_USER` | `root` |
 
-Публичный deploy-ключ добавлен в `/root/.ssh/authorized_keys` на Чебурашке (комментарий
+Публичный deploy-ключ — в `/root/.ssh/authorized_keys` на Чебурашке (комментарий
 `github-actions-deploy-philippov`). Ключ отдельный — отзывается независимо, не ломая остальной доступ.
 
-## DNS / Cloudflare (делает Филиппов)
+## DNS / Cloudflare (настраивает Филиппов сам)
 
-1. Домен зарегистрирован на Beget (РФ-карта), NS делегированы на Cloudflare.
-2. В Cloudflare (Free): A-записи `@` и `www` → `185.228.235.152`, **Proxied (оранжевое облако)** —
-   прячет origin-IP узла, на голом IP при этом остаётся сайт-прикрытие.
-3. SSL/TLS mode: **Full** (origin на self-signed; «Full (strict)» отклонит self-signed —
-   для strict позже поставить Cloudflare Origin Certificate на nginx :443).
-4. Always Use HTTPS: On.
+1. Регистрирует домен на РФ-регистраторе (reg.ru / beget, РФ-карта).
+2. Заводит домен в Cloudflare (Free), делегирует NS регистратора на серверы Cloudflare.
+3. A-записи `@` и `www` → `185.228.235.152`, **DNS only (серое облако, БЕЗ proxy)**.
+   Proxied (оранжевое) НЕ используем — проксированный трафик Cloudflare в РФ режется/тормозит;
+   серое облако = домен ведёт напрямую на RU-сервер, быстро и доступно из РФ.
+4. Приглашает резервного администратора `astonic@gmail.com` (Cloudflare → Members → Invite, роль Administrator).
+
+> Cloudflare здесь — только DNS-хостинг (proxy выключен), поэтому SSL/TLS-режимы Cloudflare
+> неприменимы: HTTPS обеспечивает origin (Let's Encrypt), не Cloudflare.
+
+## HTTPS на origin (Let's Encrypt, авто)
+
+При DNS-only домен резолвится прямо на сервер, поэтому cert нужен валидный на самом nginx.
+Выпуск автоматизирован — никаких ручных действий после DNS:
+- `certbot` + `python3-certbot-nginx` установлены.
+- `/usr/local/bin/le-bootstrap.sh` + `le-bootstrap.timer` (каждые 15 мин) ждут, пока
+  `sergeyphilippovmusic.com` начнёт резолвиться на `185.228.235.152`, затем выпускают cert
+  (`certbot --nginx --redirect -d sergeyphilippovmusic.com -d www...`) и таймер сам себя гасит.
+- Дальше штатный `certbot.timer` продлевает cert. До выпуска :443 отдаёт self-signed заглушку.
+
+Проверить статус: `ssh ru-vps 'systemctl status le-bootstrap.timer; ls /etc/letsencrypt/live/ 2>/dev/null'`.
 
 ## Откат
 
