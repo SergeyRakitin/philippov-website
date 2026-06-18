@@ -7,10 +7,10 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  // Деплой на GitHub Pages в подпапку проекта (project page):
-  // https://sergeyrakitin.github.io/philippov-website/
-  site: 'https://sergeyrakitin.github.io',
-  base: '/philippov-website',
+  // Хостинг на собственном VPS (Чебурашка, nginx) под доменом sergeyphilippovmusic.com.
+  // Корневой путь — ассеты отдаются с `/`, не из подпапки.
+  site: 'https://sergeyphilippovmusic.com',
+  base: '/',
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'ru'],

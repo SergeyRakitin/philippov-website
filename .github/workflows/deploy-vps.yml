@@ -1,0 +1,66 @@
+name: Деплой сайта на VPS (Чебурашка)
+
+# Сборка статики Astro и выкладка на собственный VPS (nginx, докрут /var/www/sergeyphilippovmusic).
+# Контент тянется из публичного датасета Sanity на этапе сборки — токены не нужны.
+# Триггеры: пуш в main (кроме studio/**), вебхук Sanity при публикации, ручной запуск.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'studio/**'        # изменения только в Studio деплоит deploy-sanity.yml
+  repository_dispatch:
+    types: [sanity-content-update]   # Sanity webhook при публикации контента → пересборка
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Один активный деплой за раз; промежуточные пуши отменяются.
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+
+      # Строгая установка по локу.
+      - run: npm ci
+
+      # Конфиг в config/astro.config.mjs — собираем через npm-скрипт.
+      - run: npm run build
+
+      - name: Настройка SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Выкладка dist/ в докрут nginx (rsync --delete)
+        run: |
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new" \
+            dist/ \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/sergeyphilippovmusic/
+
+      - name: Проверка конфига и reload nginx
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+            "nginx -t && systemctl reload nginx"
+
+      - name: Healthcheck — сайт раздаётся
+        run: |
+          sleep 3
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Host: sergeyphilippovmusic.com" "http://${{ secrets.VPS_HOST }}/")
+          echo "HTTP $STATUS"
+          [ "$STATUS" = "200" ] || { echo "::error::ожидали 200, получили $STATUS"; exit 1; }

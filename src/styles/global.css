@@ -15,8 +15,9 @@
   font-weight: 250 1000;
   font-display: swap;
   /* base-префикс захардкожен: плоский CSS не видит import.meta.env.BASE_URL.
-     Должен совпадать с base в config/astro.config.mjs и preload в Layout.astro. */
-  src: url('/philippov-website/fonts/TildaSans-VF.woff2') format('woff2-variations');
+     Должен совпадать с base в config/astro.config.mjs и preload в Layout.astro.
+     base = '/' (корневой домен sergeyphilippovmusic.com) → путь от корня. */
+  src: url('/fonts/TildaSans-VF.woff2') format('woff2-variations');
 }
 
 @theme {

@@ -53,8 +53,15 @@ Lint/test нет. Astro-конфиг вынесен в `config/astro.config.mjs`
   `.github/workflows/deploy-sanity.yml`, секреты `SANITY_AUTH_TOKEN` (роль deploy-studio) +
   `SANITY_STUDIO_DEEPL_PROXY_KEY`). Ручной запуск: `gh workflow run deploy-sanity.yml`.
   Локальный деплой: `cd studio && npx sanity deploy`.
-- **Сайт (Astro)** — пока не настроен (нет домена/сервера). Собирается `npm run build`.
-  Деплой — отдельным решением, когда будут домен/сервер.
+- **Сайт (Astro)** — задеплоен на собственный VPS **Чебурашка** (RU), IP `185.228.235.152`,
+  домен **sergeyphilippovmusic.com**. Раздаётся **nginx** из докрута `/var/www/sergeyphilippovmusic`
+  (чистая статика). Сайт совмещает роль «сайта-прикрытия» VPN-узла (на голом IP отдаётся настоящее портфолио).
+  Авто-деплой: push в `main` (кроме `studio/**`) + вебхук Sanity (`repository_dispatch: sanity-content-update`)
+  → GitHub Actions `.github/workflows/deploy-vps.yml` (сборка → `rsync dist/` на VPS → `nginx -t && reload`).
+  Секреты: `VPS_SSH_KEY` (отдельный deploy-ключ), `VPS_HOST`, `VPS_USER`. Билд **токенлес** (публичный
+  датасет Sanity, без секретов). Ручной запуск: `gh workflow run deploy-vps.yml`.
+  `base: '/'` (корневой домен). Подробности, откат, DNS/Cloudflare — **`docs/deploy.md`**.
+  GitHub Pages ретайрнут (был временным; воркфлоу и публикация удалены).
 
 Прим.: кнопка «Перевести» работает и локально, и на хостинговой Studio
 (её origin добавлен в аллоулист общего DeepL-прокси).
