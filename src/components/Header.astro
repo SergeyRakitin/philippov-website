@@ -4,6 +4,7 @@
 import { t, type Lang } from '../i18n/translations';
 import { getLocalized, langHome } from '../lib/i18n-helpers';
 import LanguageSwitcher from './LanguageSwitcher.astro';
+import AudioToggle from './AudioToggle.astro';
 import type { Section } from '../lib/sanity';
 
 interface Props {
@@ -12,9 +13,10 @@ interface Props {
   sections: Section[];
   hasAbout: boolean;
   hasContact: boolean;
+  backgroundMusicUrl?: string;
 }
 
-const { lang, brand, sections, hasAbout, hasContact } = Astro.props;
+const { lang, brand, sections, hasAbout, hasContact, backgroundMusicUrl } = Astro.props;
 const homeHref = langHome(lang); // base-aware домашняя текущего языка
 
 // Пункты-якоря: About → разделы → Contact.
@@ -51,28 +53,32 @@ if (hasContact) navItems.push({ href: '#contact', label: t(lang, 'nav.contact') 
         {brand}
       </a>
 
-      <!-- Десктоп-навигация -->
-      <div class="hidden md:flex items-center gap-8">
-        {navItems.map((item) => (
-          <a href={item.href} class="nav-link">{item.label}</a>
-        ))}
-        <span class="w-px h-4 bg-line" aria-hidden="true"></span>
-        <LanguageSwitcher lang={lang} />
-      </div>
+      <div class="flex items-center gap-3 md:gap-6">
+        <!-- Десктоп-навигация -->
+        <div class="hidden md:flex items-center gap-8">
+          {navItems.map((item) => (
+            <a href={item.href} class="nav-link">{item.label}</a>
+          ))}
+          <span class="w-px h-4 bg-line" aria-hidden="true"></span>
+          <LanguageSwitcher lang={lang} />
+        </div>
 
-      <!-- Бургер (мобильный) -->
-      <button
-        type="button"
-        id="nav-toggle"
-        class="md:hidden flex items-center justify-center w-11 h-11 -mr-2 text-paper"
-        aria-label={t(lang, 'menu.open')}
-        aria-expanded="false"
-        aria-controls="mobile-menu"
-      >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-width="1.5" d="M4 7h16M4 12h16M4 17h16" />
-        </svg>
-      </button>
+        {backgroundMusicUrl && <AudioToggle lang={lang} src={backgroundMusicUrl} />}
+
+        <!-- Бургер (мобильный) -->
+        <button
+          type="button"
+          id="nav-toggle"
+          class="md:hidden flex items-center justify-center w-11 h-11 -mr-2 text-paper"
+          aria-label={t(lang, 'menu.open')}
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-width="1.5" d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </button>
+      </div>
     </nav>
   </div>
 

@@ -31,8 +31,7 @@ export const translations = {
     'media.open': 'Open',
     'media.video': 'Video',
     'media.audio': 'Audio',
-    'media.play': 'Play',
-    'media.pause': 'Pause',
+    'media.backgroundMusic': 'Background music',
 
     // Карусель (aria)
     'carousel.prev': 'Previous photo',
@@ -81,8 +80,7 @@ export const translations = {
     'media.open': 'Открыть',
     'media.video': 'Видео',
     'media.audio': 'Аудио',
-    'media.play': 'Воспроизвести',
-    'media.pause': 'Пауза',
+    'media.backgroundMusic': 'Фоновая музыка',
 
     // Карусель (aria)
     'carousel.prev': 'Предыдущее фото',

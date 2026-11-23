@@ -30,6 +30,7 @@
 | `heroTagline` | localeText | абзац-вступление в hero |
 | `statusNote` | localeString | «UK Global Talent Visa Holder…» (опц.) |
 | `heroImage` | image (hotspot) | фон/портрет hero (опц.) |
+| `backgroundMusic` | file (MP3) | фоновый трек главной (опц.), URL в `backgroundMusicUrl` |
 
 ### 2. `seoSettings` (singleton, _id: `seoSettings`) — SEO
 | поле | тип | назначение |
@@ -52,15 +53,17 @@
 | `slug` | slug (source: title.en) | якорь раздела (`#<slug>`) |
 | `subtitle` | localeString | подзаголовок (опц.) |
 | `body` | localeRichText | текст раздела (опц.) |
-| `photos` | array<image{caption: localeString}> (hotspot) | карусель фото |
+| `photos` | array<image> (hotspot) | карусель фото |
 | `videos` | array<`videoItem`> | ссылки на YouTube/Vimeo/др. |
 | `audios` | array<`audioItem`> | ссылки на SoundCloud/Spotify/др. |
 | `visible` | boolean (initial true) | показывать на сайте |
 | `orderRank` | string (orderable) | порядок |
 
 Вложенные object-типы:
-- `videoItem` → `{ url: url (required), title: localeString }`
-- `audioItem` → `{ url?: url, file?: file (audio), title: localeString }` — url теперь опц., добавлен file; валидация на уровне объекта: «хотя бы одно из url/file»
+- `videoItem` → `{ url: url (required) }`
+- `audioItem` → `{ url: url (required, HTTP/HTTPS) }`. Старые записи без ссылки пропускаются на фронте.
+
+Устаревшие `photos[].caption`, `videos[].title`, `audios[].title` и `audios[].file` скрыты в Studio для совместимости с сохранёнными документами.
 
 ### 5. `contactSettings` (singleton, _id: `contactSettings`) — Contacts (низ страницы)
 | поле | тип | назначение |
@@ -84,7 +87,7 @@
 
 ```groq
 // siteSettings
-*[_type == "siteSettings"][0]{ name, role, heroTagline, statusNote, heroImage }
+*[_type == "siteSettings"][0]{ name, role, heroTagline, statusNote, heroImage, "backgroundMusicUrl": backgroundMusic.asset->url }
 
 // seoSettings
 *[_type == "seoSettings"][0]{ seoTitle, seoDescription, ogImage }
@@ -95,9 +98,9 @@
 // sections
 *[_type == "section" && visible == true]|order(orderRank){
   _id, title, slug, subtitle, body,
-  photos[]{ ..., caption },
-  videos[]{ url, title },
-  audios[]{ url, title, "fileUrl": file.asset->url }
+  photos[]{ _key, asset, crop, hotspot },
+  videos[]{ url },
+  audios[]{ url }
 }
 
 // contactSettings
@@ -114,5 +117,6 @@ singletonDocumentIds = ['siteSettings','seoSettings','aboutSection','contactSett
 ## Медиа-эмбеды (фронт)
 
 - video: YouTube (`youtube.com/watch?v=`, `youtu.be/`) и Vimeo → `<iframe>`; иначе — ссылка.
-- audio: загруженный файл (`fileUrl`) → кастомный HTML5-плеер (приоритет); SoundCloud → цветной `<iframe>` (`color=%23c8975a`, акцент сайта); Spotify (`open.spotify.com/...`) → `/embed/`; иначе — ссылка.
+- audio: SoundCloud → тёмный `<iframe>` (`color=%23aaaaaa` и CSS-фильтр), Spotify (`open.spotify.com/...`) → `/embed/`; иначе — ссылка.
+- фоновая музыка: `backgroundMusicUrl` → переключатель в шапке и автовоспроизведение MP3 по кругу. При блокировке браузером плеер повторяет попытку после первого клика.
 - фото: компонент `PhotoCarousel.astro`.

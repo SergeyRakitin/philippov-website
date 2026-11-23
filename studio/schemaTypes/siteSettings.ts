@@ -26,6 +26,13 @@ export default defineType({
       type: 'image',
       options: {hotspot: true},
     }),
+    defineField({
+      name: 'backgroundMusic',
+      title: 'Фоновая музыка (MP3)',
+      type: 'file',
+      description: 'Трек, который запускается при открытии сайта. Без файла плеер скрыт.',
+      options: {accept: 'audio/mpeg,.mp3'},
+    }),
   ],
   preview: {
     prepare() {

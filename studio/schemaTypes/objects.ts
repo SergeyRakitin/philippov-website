@@ -13,17 +13,18 @@ export const videoItem = defineType({
       description: 'YouTube, Vimeo и др.',
       validation: (Rule) => Rule.required(),
     }),
-    defineField({name: 'title', title: 'Заголовок', type: 'localeString'}),
+    // Старые документы ещё могут содержать это поле.
+    defineField({name: 'title', type: 'localeString', hidden: true}),
   ],
   preview: {
-    select: {title: 'title.en', url: 'url'},
-    prepare({title, url}) {
-      return {title: title || 'Видео', subtitle: url}
+    select: {url: 'url'},
+    prepare({url}) {
+      return {title: url || 'Видео'}
     },
   },
 })
 
-// Аудио: ссылка (SoundCloud / Spotify / др.) ИЛИ загруженный файл (mp3 / wav)
+// Аудио-ссылка (SoundCloud / Spotify / др.)
 export const audioItem = defineType({
   name: 'audioItem',
   title: 'Аудио',
@@ -33,26 +34,17 @@ export const audioItem = defineType({
       name: 'url',
       title: 'Ссылка на трек',
       type: 'url',
-      description: 'SoundCloud, Spotify и др. — или загрузите файл ниже',
+      description: 'SoundCloud, Spotify и др.',
+      validation: (Rule) => Rule.required().uri({scheme: ['http', 'https']}),
     }),
-    defineField({
-      name: 'file',
-      title: 'Аудиофайл (mp3 / wav)',
-      type: 'file',
-      options: {accept: 'audio/*,.mp3,.wav'},
-    }),
-    defineField({name: 'title', title: 'Заголовок', type: 'localeString'}),
+    // Сохраняем совместимость схемы с ранее сохранёнными записями.
+    defineField({name: 'file', type: 'file', hidden: true}),
+    defineField({name: 'title', type: 'localeString', hidden: true}),
   ],
-  // Хотя бы одно из url/file — валидация на уровне объекта, чтобы видеть оба значения.
-  validation: (Rule) =>
-    Rule.custom((fields: {url?: string; file?: unknown} | undefined) => {
-      if (!fields?.url && !fields?.file) return 'Укажите ссылку или загрузите файл'
-      return true
-    }),
   preview: {
-    select: {title: 'title.en', url: 'url', fileName: 'file.asset.originalFilename'},
-    prepare({title, url, fileName}) {
-      return {title: title || 'Аудио', subtitle: url || fileName || 'Аудиофайл'}
+    select: {url: 'url'},
+    prepare({url}) {
+      return {title: url || 'Аудио', subtitle: url ? undefined : 'Добавьте ссылку или уберите запись'}
     },
   },
 })

@@ -1,0 +1,122 @@
+---
+import { t, type Lang } from '../i18n/translations';
+
+interface Props {
+  lang: Lang;
+  src: string;
+}
+
+const { lang, src } = Astro.props;
+---
+
+<button id="background-music-toggle" type="button" aria-label={t(lang, 'media.backgroundMusic')} aria-pressed="false">
+  <span class="eq-bars" aria-hidden="true">
+    <span class="eq-bar" style="--rest:6px; --low:3px; --high:16px; --duration:0.9s"></span>
+    <span class="eq-bar" style="--rest:12px; --low:5px; --high:18px; --duration:1.15s"></span>
+    <span class="eq-bar" style="--rest:8px; --low:3px; --high:14px; --duration:1s"></span>
+    <span class="eq-bar" style="--rest:14px; --low:4px; --high:18px; --duration:1.35s"></span>
+  </span>
+  <span class="audio-switch" aria-hidden="true"></span>
+</button>
+<audio id="background-music" src={src} preload="none" loop hidden></audio>
+
+<script>
+  const audio = document.querySelector<HTMLAudioElement>('#background-music');
+  const toggle = document.getElementById('background-music-toggle');
+  const preferenceKey = 'philippov-background-music';
+
+  if (audio && toggle) {
+    let autoStart = true;
+    try {
+      autoStart = sessionStorage.getItem(preferenceKey) !== 'off';
+    } catch { /* Хранилище может быть недоступно. */ }
+
+    const syncToggle = () => toggle.setAttribute('aria-pressed', String(!audio.paused && !audio.error));
+    audio.addEventListener('playing', syncToggle);
+    audio.addEventListener('pause', syncToggle);
+    audio.addEventListener('error', syncToggle);
+
+    const startAfterClick = () => { void audio.play().catch(syncToggle); };
+
+    toggle.addEventListener('click', () => {
+      document.removeEventListener('click', startAfterClick);
+      autoStart = false;
+      const enable = audio.paused;
+      try {
+        sessionStorage.setItem(preferenceKey, enable ? 'on' : 'off');
+      } catch { /* Хранилище может быть недоступно. */ }
+
+      if (enable) void audio.play().catch(syncToggle);
+      else audio.pause();
+    });
+
+    if (autoStart) {
+      void audio.play().catch((error) => {
+        if (autoStart && error.name === 'NotAllowedError') {
+          document.addEventListener('click', startAfterClick, { once: true });
+        }
+      });
+    }
+  }
+</script>
+
+<style>
+  button {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding-inline: 4px;
+    color: rgb(255 255 255 / 50%);
+    cursor: pointer;
+    transition: color .3s;
+  }
+  button:hover { color: rgb(255 255 255 / 65%); }
+  button[aria-pressed='true'] { color: rgb(255 255 255 / 90%); }
+
+  .eq-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 18px;
+    transform: translateY(-2px);
+  }
+  .eq-bar {
+    width: 3px;
+    height: var(--rest);
+    border-radius: 2px;
+    background: currentColor;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    button[aria-pressed='true'] .eq-bar { animation: bounce var(--duration) ease-in-out infinite; }
+  }
+  @keyframes bounce {
+    0%, 100% { height: var(--low); }
+    50% { height: var(--high); }
+  }
+
+  .audio-switch {
+    position: relative;
+    width: 30px;
+    height: 16px;
+    border: 1px solid rgb(255 255 255 / 18%);
+    border-radius: 8px;
+    background: rgb(255 255 255 / 5%);
+  }
+  .audio-switch::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  button[aria-pressed='true'] .audio-switch {
+    border-color: rgb(255 255 255 / 25%);
+    background: rgb(255 255 255 / 12%);
+  }
+  button[aria-pressed='true'] .audio-switch::before { left: 16px; }
+</style>

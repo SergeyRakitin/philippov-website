@@ -8,7 +8,6 @@ import { t, type Lang } from '../i18n/translations';
 
 export interface Photo {
   src: string;
-  caption?: string;
 }
 
 interface Props {
@@ -63,14 +62,11 @@ const heights = Array.from({ length: photos.length }, (_, i) => stemHeights[i % 
           <div class="aspect-[4/5] overflow-hidden group">
             <img
               src={photo.src}
-              alt={photo.caption || `${t(lang, 'carousel.photo')} ${index + 1}`}
+              alt={`${t(lang, 'carousel.photo')} ${index + 1}`}
               class="w-full h-full object-cover"
               loading="lazy"
             />
           </div>
-          {photo.caption && (
-            <figcaption class="mt-3 text-sm text-muted">{photo.caption}</figcaption>
-          )}
         </figure>
       ))}
     </div>

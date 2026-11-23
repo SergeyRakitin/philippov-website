@@ -36,6 +36,7 @@ export interface SiteSettings {
   heroTagline?: LocaleString;
   statusNote?: LocaleString;
   heroImage?: SanityImage;
+  backgroundMusicUrl?: string;
 }
 
 export interface SeoSettings {
@@ -52,20 +53,15 @@ export interface AboutSection {
 
 export interface VideoItem {
   url: string;
-  title?: LocaleString;
 }
 
 export interface AudioItem {
   url?: string;
-  /** Прямой URL загруженного аудиофайла (file.asset->url). */
-  fileUrl?: string;
-  title?: LocaleString;
 }
 
 export interface SectionPhoto {
   _key?: string;
   asset?: SanityImage;
-  caption?: LocaleString;
   // hotspot/crop приходят при наличии — urlFor их учитывает через сам объект
   [key: string]: unknown;
 }
@@ -110,7 +106,7 @@ export interface ContactSettings {
 
 export const queries = {
   siteSettings: `*[_type == "siteSettings"][0]{
-    name, role, heroTagline, statusNote, heroImage
+    name, role, heroTagline, statusNote, heroImage, "backgroundMusicUrl": backgroundMusic.asset->url
   }`,
 
   seoSettings: `*[_type == "seoSettings"][0]{ seoTitle, seoDescription, ogImage }`,
@@ -119,9 +115,9 @@ export const queries = {
 
   sections: `*[_type == "section" && visible == true]|order(orderRank){
     _id, title, slug, subtitle, body,
-    photos[]{ ..., caption },
-    videos[]{ url, title },
-    audios[]{ url, title, "fileUrl": file.asset->url }
+    photos[]{ _key, asset, crop, hotspot },
+    videos[]{ url },
+    audios[]{ url }
   }`,
 
   contactSettings: `*[_type == "contactSettings"][0]{

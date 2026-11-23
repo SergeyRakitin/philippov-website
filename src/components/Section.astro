@@ -27,11 +27,11 @@ const photos: Photo[] = (section.photos ?? [])
   .filter((p) => p?.asset)
   .map((p) => ({
     src: urlFor(p as unknown as SanityImage).width(900).quality(82).auto('format').url(),
-    caption: getLocalized(p.caption, lang) || undefined,
   }));
 
 const videos = (section.videos ?? []).filter((v) => v?.url);
 const audios = (section.audios ?? []).filter((a) => a?.url);
+const mediaGrid = `grid grid-cols-1 ${videos.length > 1 ? 'lg:grid-cols-2' : ''} gap-8`;
 
 // Чередование фона секций
 const altBg = index % 2 === 1;
@@ -73,7 +73,7 @@ const altBg = index % 2 === 1;
   {videos.length > 0 && (
     <div class="container-site">
       <!-- Одно видео — на всю ширину контейнера; 2+ — сетка 2-up на lg. -->
-      <div class={`grid grid-cols-1 ${videos.length > 1 ? 'lg:grid-cols-2' : ''} gap-8 mb-12`}>
+      <div class:list={[mediaGrid, 'mb-12']}>
         {videos.map((video) => <VideoEmbed lang={lang} item={video} />)}
       </div>
     </div>
@@ -82,7 +82,7 @@ const altBg = index % 2 === 1;
   <!-- Аудио -->
   {audios.length > 0 && (
     <div class="container-site">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class={mediaGrid}>
         {audios.map((audio) => <AudioEmbed lang={lang} item={audio} />)}
       </div>
     </div>

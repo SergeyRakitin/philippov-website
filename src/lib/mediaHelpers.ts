@@ -59,18 +59,14 @@ export function getVideoEmbedUrl(url: string | undefined | null): string | null 
  * URL для <iframe> аудио (SoundCloud/Spotify).
  * SoundCloud → https://w.soundcloud.com/player/?url=<enc>&color=...
  * Spotify    → open.spotify.com/<type>/<id> → open.spotify.com/embed/<type>/<id>
- * accentHex — hex-цвет акцента для SoundCloud-плеера (без #).
  */
-export function getAudioEmbedUrl(
-  url: string | undefined | null,
-  accentHex = 'c8975a',
-): string | null {
+export function getAudioEmbedUrl(url: string | undefined | null): string | null {
   if (!url) return null;
   const provider = detectProvider(url);
 
   if (provider === 'soundcloud') {
     const enc = encodeURIComponent(url);
-    return `https://w.soundcloud.com/player/?url=${enc}&color=%23${accentHex}&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false`;
+    return `https://w.soundcloud.com/player/?url=${enc}&color=%23aaaaaa&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&show_artwork=false&visual=false`;
   }
 
   if (provider === 'spotify') {
@@ -88,5 +84,5 @@ export function getAudioEmbedUrl(
 /** Высота iframe аудио-плеера по провайдеру (px). */
 export function getAudioEmbedHeight(provider: AudioProvider): number {
   if (provider === 'spotify') return 152;
-  return 140; // soundcloud (compact, visual:false)
+  return 125; // SoundCloud, компактный вид
 }

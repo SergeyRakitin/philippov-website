@@ -37,7 +37,7 @@ export default defineType({
         {
           type: 'image',
           options: {hotspot: true, crop: true},
-          fields: [{name: 'caption', title: 'Подпись', type: 'localeString'}],
+          fields: [{name: 'caption', type: 'localeString', hidden: true}],
         },
       ],
       options: {layout: 'grid'},
