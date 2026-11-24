@@ -18,10 +18,10 @@ export default defineType({
       type: 'string',
       validation: (Rule) => Rule.email(),
     }),
-    defineField({name: 'phone', title: 'Телефон (опц.)', type: 'string'}),
+    defineField({name: 'phone', title: 'Whatsup', type: 'string'}),
     defineField({
       name: 'telegram',
-      title: 'Telegram (опц.)',
+      title: 'Telegram',
       type: 'string',
       description: 'Юзернейм (@name) или ссылка t.me/...',
     }),

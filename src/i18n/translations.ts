@@ -40,7 +40,7 @@ export const translations = {
 
     // Контакты
     'contact.email': 'Email',
-    'contact.phone': 'Phone',
+    'contact.phone': 'Whatsup',
     'contact.telegram': 'Telegram',
     'contact.write': 'Get in touch',
 
@@ -89,7 +89,7 @@ export const translations = {
 
     // Контакты
     'contact.email': 'Email',
-    'contact.phone': 'Телефон',
+    'contact.phone': 'Whatsup',
     'contact.telegram': 'Telegram',
     'contact.write': 'Связаться',
 
